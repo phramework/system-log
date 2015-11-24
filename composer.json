@@ -1,7 +1,8 @@
 {
   "name": "phramework/systemlog",
-  "description": "Log tool for Phramework",
-  "homepage": "https://nohponex.gr",
+  "description": "Log for Phramework",
+  "license": "Apache-2.0",
+  "homepage": "https://phramework.github.io/",
   "authors": [{
     "name": "Xenophon Spafaridis",
     "email": "nohponex@gmail.com",
@@ -10,23 +11,15 @@
     "name": " Alexandros Kalliontzis",
     "email": "alkallio@gmail.com"
   }],
-  "repositories": [{
-    "type": "vcs",
-    "url": "git@gitlab.mathlogic.eu:Phramework/Phramework.git"
-  }, {
-    "type": "vcs",
-    "url": "git@github.com:metaphrase/php-sdk.git"
-  }],
   "require": {
     "php": ">=5.6",
-    "phramework/phramework": "1.0.0-alpha.31",
-    "ext-json": "*"
+    "phramework/phramework": "dev-master"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
     "phpunit/phpunit": "5.*"
   },
-  "minimum-stability": "alpha",
+  "minimum-stability": "dev",
   "prefer-stable": true,
   "autoload": {
     "psr-4": {
@@ -43,7 +36,6 @@
   },
   "scripts": {
     "test": [
-      "echo \"$(tput setaf 1)test routine$(tput sgr 0)\"",
       "find src/ -name '*.php' -print0 | xargs -0 -L 1 php -l",
       "find tests/ -name '*.php' -print0 | xargs -0 -L 1 php -l",
       "phpunit"
