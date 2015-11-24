@@ -4,10 +4,10 @@ namespace Phramework\SystemLog;
 
 use \Phramework\Phramework;
 
-class SystemLog extends \PHPUnit_Framework_TestCase
+class SystemLogTest extends \PHPUnit_Framework_TestCase
 {
 
-    private $object;
+    private $phramework;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -16,7 +16,12 @@ class SystemLog extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $object = new SystemLog();
+        $settings = [];
+
+        $this->phramework = new Phramework(
+            $settings,
+            new \Phramework\URIStrategy\URITemplate([])
+        );
     }
 
     /**
@@ -26,5 +31,15 @@ class SystemLog extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
 
+    }
+
+    /**
+     * @covers Phramework\SystemLog\SystemLog::register
+     */
+    public function testRegister()
+    {
+        SystemLog::register();
+
+        $this->phramework->invoke();
     }
 }
