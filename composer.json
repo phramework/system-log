@@ -26,7 +26,11 @@
       "Phramework\\SystemLog\\": "src"
     }
   },
-  "autoload-dev": {},
+  "autoload-dev": {
+    "psr-4": {
+      "Phramework\\SystemLog\\APP\\": "tests/APP"
+    }
+  },
   "archive": {
     "exclude": [
       "*",

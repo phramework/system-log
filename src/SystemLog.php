@@ -28,10 +28,36 @@ use \Phramework\Extensions\StepCallback;
 class SystemLog
 {
     /**
+     * @var \Phramework\SystemLog\Log\ILog
+     */
+    protected static $log;
+
+    /**
      * Register callbacks
      */
     public static function register()
     {
+
+        $logNamespace = Phramework::getSetting('system-log', 'log');
+
+        if (!$logNamespace) {
+            throw new \Phramework\Exceptions\ServerException(
+                'system-log log setting is not set!'
+            );
+        }
+
+        self::$log = $log = new $logNamespace(
+            Phramework::getSetting('system-log')
+        );
+
+        if (!($log instanceof \Phramework\SystemLog\Log\ILog)) {
+            throw new \Exception(
+                'Class is not implementing \Phramework\SystemLog\Log\ILog'
+            );
+        }
+
+        //Register step callbacks
+
         Phramework::$stepCallback->add(
             StepCallback::STEP_AFTER_CALL_URISTRATEGY,
             function (
@@ -42,13 +68,38 @@ class SystemLog
                 $callbackVariables,
                 $invokedController,
                 $invokedMethod
-            ) {
+            ) use ($log) {
                 $object = [
                     'controller' => $invokedController,
-                    'method' => $invokedMethod,
+                    'method' => $invokedMethod
                 ];
 
-                file_put_contents('log.txt', json_encode($object), FILE_APPEND);
+                //echo json_encode($object, JSON_PRETTY_PRINT) . PHP_EOL;
+
+                $log->log($step, $object);
+            }
+        );
+
+        Phramework::$stepCallback->add(
+            StepCallback::STEP_ERROR,
+            function (
+                $step,
+                $params,
+                $method,
+                $headers,
+                $callbackVariables,
+                $errors,
+                $code,
+                $exception
+            ) use ($log) {
+                $object = [
+                    'code' => $code,
+                    'errors' => $errors
+                ];
+
+                //echo json_encode($object, JSON_PRETTY_PRINT) . PHP_EOL;
+
+                $log->log($step, $object);
             }
         );
     }
