@@ -21,7 +21,10 @@ use \Phramework\Phramework;
 use \Phramework\Extensions\StepCallback;
 
 /**
- * JWT authentication implementation for phramework
+ * SystemLog package, used to log requests and exceptions
+ * Defined settings:
+ * - system-log[]
+ *   - log Log implentation class (full class path)
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Spafaridis Xenophon <nohponex@gmail.com>
  */
@@ -30,34 +33,39 @@ class SystemLog
     /**
      * @var \Phramework\SystemLog\Log\ILog
      */
-    protected static $log;
+    protected static $logObject;
 
     /**
      * Register callbacks
      */
     public static function register()
     {
-
+        //Get settings
         $logNamespace = Phramework::getSetting('system-log', 'log');
 
+        //Check if system-log setting array is set
         if (!$logNamespace) {
             throw new \Phramework\Exceptions\ServerException(
                 'system-log log setting is not set!'
             );
         }
 
-        self::$log = $log = new $logNamespace(
+        //Create new log implemtation object
+        self::$logObject = $logObject = new $logNamespace(
             Phramework::getSetting('system-log')
         );
 
-        if (!($log instanceof \Phramework\SystemLog\Log\ILog)) {
+        if (!($logObject instanceof \Phramework\SystemLog\Log\ILog)) {
             throw new \Exception(
                 'Class is not implementing \Phramework\SystemLog\Log\ILog'
             );
         }
 
-        //Register step callbacks
+        /*
+         * Register step callbacks
+         */
 
+        //Register after call URIStrategy (after controller/method is invoked) callback
         Phramework::$stepCallback->add(
             StepCallback::STEP_AFTER_CALL_URISTRATEGY,
             function (
@@ -68,7 +76,7 @@ class SystemLog
                 $callbackVariables,
                 $invokedController,
                 $invokedMethod
-            ) use ($log) {
+            ) use ($logObject) {
                 $object = [
                     'controller' => $invokedController,
                     'method' => $invokedMethod
@@ -76,10 +84,11 @@ class SystemLog
 
                 //echo json_encode($object, JSON_PRETTY_PRINT) . PHP_EOL;
 
-                $log->log($step, $object);
+                $logObject->log($step, $object);
             }
         );
 
+        //Register on error callback
         Phramework::$stepCallback->add(
             StepCallback::STEP_ERROR,
             function (
@@ -91,7 +100,7 @@ class SystemLog
                 $errors,
                 $code,
                 $exception
-            ) use ($log) {
+            ) use ($logObject) {
                 $object = [
                     'code' => $code,
                     'errors' => $errors
@@ -99,7 +108,7 @@ class SystemLog
 
                 //echo json_encode($object, JSON_PRETTY_PRINT) . PHP_EOL;
 
-                $log->log($step, $object);
+                $logObject->log($step, $object);
             }
         );
     }

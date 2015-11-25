@@ -20,6 +20,7 @@ namespace Phramework\SystemLog\Log;
 use \Phramework\Phramework;
 
 /**
+ * Log implementation using terminal to display log messages
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Spafaridis Xenophon <nohponex@gmail.com>
  */

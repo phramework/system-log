@@ -20,6 +20,11 @@ namespace Phramework\SystemLog\Log;
 use \Phramework\Phramework;
 
 /**
+ * Log implementation using files as store method
+ * Defined settings:
+ * - system-log[]
+ *   - file-log[]
+ *     - path File path to store log
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Spafaridis Xenophon <nohponex@gmail.com>
  */

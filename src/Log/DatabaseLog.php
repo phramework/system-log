@@ -20,6 +20,16 @@ namespace Phramework\SystemLog\Log;
 use \Phramework\Phramework;
 
 /**
+ * Log implementation using databse as store method
+ * Defined settings:
+ * - system-log[]
+ *   - database-log[]
+ *     - driver
+ *     - host
+ *     - user
+ *     - pass
+ *     - name
+ *     - port
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Spafaridis Xenophon <nohponex@gmail.com>
  */
