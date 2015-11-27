@@ -68,19 +68,21 @@ class DatabaseLog implements ILog
                 'Setting system-log.database-log is not set'
             );
         }
+        
+        $settingsDb = $settings['database-log'];
 
-        $adapterName = $settings['database-log']['adapter'];
+        $adapterName = $settingsDb['adapter'];
 
         switch ($adapterName) {
             case 'postgresql':
                 $this->adapter = new \Phramework\Database\PostgreSQL(
-                    $settings['database-log']
+                    $settingsDb
                 );
                 break;
             case 'mysql':
             case 'mariadb':
                 $this->adapter = new \Phramework\Database\PostgreSQL(
-                    $settings['database-log']
+                    $settingsDb
                 );
                 break;
             default:

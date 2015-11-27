@@ -25,11 +25,24 @@ use \Phramework\Extensions\StepCallback;
  * Defined settings:
  * - system-log[]
  *   - log Log implentation class (full class path)
+ *   - matrix[]
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Spafaridis Xenophon <nohponex@gmail.com>
  */
 class SystemLog
 {
+    const LOG_STANDARD        = 0;
+    const LOG_REQUEST_HEADER_AGENT    = 1;
+    const LOG_REQUEST_HEADER_REFERER  = 2;
+
+
+
+    const LOG_REQUEST_HEADERS = 64;
+    const LOG_REQUEST_PARAMS  = 128;
+
+    const LOG_RESPONSE_HEADER = 1024;
+    const LOG_RESPONSE_BODY   = 2048;
+
     /**
      * @var \Phramework\SystemLog\Log\ILog
      */
@@ -42,6 +55,8 @@ class SystemLog
     {
         //Get settings
         $logNamespace = Phramework::getSetting('system-log', 'log');
+
+        $logMatrix = Phramework::getSetting('system-log', 'matrix');
 
         //Check if system-log setting array is set
         if (!$logNamespace) {
@@ -71,16 +86,61 @@ class SystemLog
             function (
                 $step,
                 $params,
-                $method,
+                $method, //HTTP method
                 $headers,
                 $callbackVariables,
                 $invokedController,
-                $invokedMethod
-            ) use ($logObject) {
+                $invokedMethod //Class method
+            ) use (
+                $logObject,
+                $logMatrix
+            ) {
+                list($URI) = self::URI();
+
+                $matrixKey = $invokedController . '::' . $invokedMethod;
+
+                $flags = (
+                    isset($logMatrix[$matrixKey])
+                    ? $logMatrix[$matrixKey]
+                    : self::LOG_STANDARD
+                );
+                
                 $object = [
-                    'controller' => $invokedController,
-                    'method' => $invokedMethod
+                    'URI' => $URI,
+                    'method' => $method,
+                    'user_id' => null,
+                    'request_headers' => null,
+                    'request_params' => null,
+                    'request_timestamp' => $_SERVER['REQUEST_TIME'],
+                    'response_headers' => null,
+                    'response_body'    => null,
+                    'response_timestamp' => time(),
+                    'response_status_code' => http_response_code(),
+                    'flags' => $flags
                 ];
+
+
+                if (($flags & self::LOG_REQUEST_HEADERS) !== 0) {
+                    $object['response_headers'] = $headers;
+                }
+
+                if (($flags & self::LOG_REQUEST_PARAMS) !== 0) {
+                    $object['request_params'] = $params;
+                }
+
+                if (($flags & self::LOG_RESPONSE_HEADER) !== 0) {
+                    //$object['response_headers'] = headers_list();
+                }
+
+                if (($flags & self::LOG_RESPONSE_BODY) !== 0) {
+                    $object['response_body'] = ob_get_contents();
+
+                    if (($flags & self::LOG_RESPONSE_HEADER) === 0) {
+
+                        //$headers_list = headers_list();
+                        //$object['response_headers'] = $headers_list;
+                    }
+                }
 
                 //echo json_encode($object, JSON_PRETTY_PRINT) . PHP_EOL;
 
@@ -120,10 +180,11 @@ class SystemLog
      */
     public static function URI()
     {
-        $REDIRECT_QUERY_STRING =
+        $REDIRECT_QUERY_STRING = (
             isset($_SERVER['QUERY_STRING'])
             ? $_SERVER['QUERY_STRING']
-            : '';
+            : ''
+        );
 
         $REDIRECT_URL = '';
 

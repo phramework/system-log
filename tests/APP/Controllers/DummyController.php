@@ -27,6 +27,29 @@ class DummyController
 {
     public static function GET($params, $method, $headers)
     {
+        \Phramework\Phramework::view(
+            [
+                'data' => [
+                    [
+                        'type' => 'dummy',
+                        'id' => 3
+                    ],
+                    [
+                        'type' => 'dummy',
+                        'id' => 4
+                    ]
+                ]
+            ]
+        );
+    }
 
+    public static function GETById($params, $method, $headers, $id)
+    {
+        \Phramework\Phramework::view([
+            'data' => [
+                'type' => 'dummy',
+                'id' => $id
+            ]
+        ]);
     }
 }

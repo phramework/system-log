@@ -14,9 +14,19 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        //force uri
+        //$_SERVER['REQUEST_URI'] = '/dummy/10/';
+
         $settings = [
             'system-log' => [
                 'log' => '\\Phramework\\SystemLog\\Log\\TerminalLog',
+                'matrix' => [
+                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET'
+                        => SystemLog::LOG_REQUEST_HEADER_AGENT | SystemLog::LOG_RESPONSE_BODY | SystemLog::LOG_REQUEST_HEADERS
+                ],
+                'matrix-error' => [
+                    '\Exception' => 0
+                ],
                 'database-log' => [
                     'driver' => 'postgresql',
                     'host' => '127.0.0.1',
@@ -35,6 +45,12 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
                     '/',
                     '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'GET',
+                    Phramework::METHOD_ANY
+                ],
+                [
+                    '/dummy/{id}',
+                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
+                    'GETById',
                     Phramework::METHOD_ANY
                 ],
             ])

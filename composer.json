@@ -3,6 +3,7 @@
   "description": "Log for Phramework",
   "license": "Apache-2.0",
   "homepage": "https://phramework.github.io/",
+  "type": "library",
   "authors": [{
     "name": "Xenophon Spafaridis",
     "email": "nohponex@gmail.com",
