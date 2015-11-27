@@ -106,10 +106,44 @@ class SystemLog
                     'errors' => $errors
                 ];
 
-                //echo json_encode($object, JSON_PRETTY_PRINT) . PHP_EOL;
+                //list($URL) = self::URI();
 
                 $logObject->log($step, $object);
             }
         );
+    }
+
+    /**
+     * Helper method
+     * Get current URI and GET parameters from the requested URI
+     * @return string[2] Returns an array with current URI and GET parameters
+     */
+    public static function URI()
+    {
+        $REDIRECT_QUERY_STRING =
+            isset($_SERVER['QUERY_STRING'])
+            ? $_SERVER['QUERY_STRING']
+            : '';
+
+        $REDIRECT_URL = '';
+
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $url_parts = parse_url($_SERVER['REQUEST_URI']);
+            $REDIRECT_URL = $url_parts['path'];
+        }
+
+        $URI = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+
+        $URI = '/' . trim(str_replace($URI, '', $REDIRECT_URL), '/');
+        $URI = urldecode($URI) . '/';
+
+        $URI = trim($URI, '/');
+
+        $parameters = [];
+
+        //Extract parametrs from QUERY string
+        parse_str($REDIRECT_QUERY_STRING, $parameters);
+
+        return [$URI, $parameters];
     }
 }
