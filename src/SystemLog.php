@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2015 Spafaridis Xenofon
+ * Copyright 2015 Xenofon Spafaridis
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ use \Phramework\Extensions\StepCallback;
  *   - log Log implentation class (full class path)
  *   - matrix[]
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
- * @author Spafaridis Xenophon <nohponex@gmail.com>
+ * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
 class SystemLog
 {
@@ -51,7 +51,7 @@ class SystemLog
     /**
      * Register callbacks
      */
-    public static function register()
+    public static function register($additionalParameters = [])
     {
         //Get settings
         $logNamespace = Phramework::getSetting('system-log', 'log');
@@ -93,7 +93,8 @@ class SystemLog
                 $invokedMethod //Class method
             ) use (
                 $logObject,
-                $logMatrix
+                $logMatrix,
+                $additionalParameters
             ) {
                 list($URI) = self::URI();
 
@@ -104,7 +105,7 @@ class SystemLog
                     ? $logMatrix[$matrixKey]
                     : self::LOG_STANDARD
                 );
-                
+
                 $object = [
                     'URI' => $URI,
                     'method' => $method,
@@ -116,12 +117,13 @@ class SystemLog
                     'response_body'    => null,
                     'response_timestamp' => time(),
                     'response_status_code' => http_response_code(),
-                    'flags' => $flags
+                    'flags' => $flags,
+                    'additional_parameters' => $additionalParameters
                 ];
 
 
                 if (($flags & self::LOG_REQUEST_HEADERS) !== 0) {
-                    $object['response_headers'] = $headers;
+                    $object['request_headers'] = $headers;
                 }
 
                 if (($flags & self::LOG_REQUEST_PARAMS) !== 0) {
@@ -160,7 +162,11 @@ class SystemLog
                 $errors,
                 $code,
                 $exception
-            ) use ($logObject) {
+            ) use (
+                $logObject,
+                $logMatrix,
+                $additionalParameters
+            ) {
                 $object = [
                     'code' => $code,
                     'errors' => $errors

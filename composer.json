@@ -5,7 +5,7 @@
   "homepage": "https://phramework.github.io/",
   "type": "library",
   "authors": [{
-    "name": "Xenophon Spafaridis",
+    "name": "Xenofon Spafaridis",
     "email": "nohponex@gmail.com",
     "homepage": "https://nohponex.gr"
   }, {
@@ -14,14 +14,13 @@
   }],
   "require": {
     "php": ">=5.6",
-    "phramework/phramework": "dev-master"
+    "phramework/phramework": "^1.0.0"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
     "phpunit/phpunit": "5.*",
     "satooshi/php-coveralls": "dev-master"
   },
-  "minimum-stability": "dev",
   "prefer-stable": true,
   "autoload": {
     "psr-4": {
