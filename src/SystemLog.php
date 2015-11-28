@@ -26,14 +26,17 @@ use \Phramework\Extensions\StepCallback;
  * - system-log[]
  *   - log Log implentation class (full class path)
  *   - matrix[]
+ *   - matrix-exception[]
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
 class SystemLog
 {
-    const LOG_STANDARD        = 0;
-    const LOG_REQUEST_HEADER_AGENT    = 1;
-    const LOG_REQUEST_HEADER_REFERER  = 2;
+    const LOG_IGNORE                  = 1;
+    const LOG_STANDARD                = 0;
+    const LOG_USER_ID = 2;
+    const LOG_REQUEST_HEADER_AGENT    = 4;
+    const LOG_REQUEST_HEADER_REFERER  = 8;
 
 
 
@@ -56,7 +59,8 @@ class SystemLog
         //Get settings
         $logNamespace = Phramework::getSetting('system-log', 'log');
 
-        $logMatrix = Phramework::getSetting('system-log', 'matrix');
+        $logMatrix          = Phramework::getSetting('system-log', 'matrix');
+        $logMatrixException = Phramework::getSetting('system-log', 'matrix-exception');
 
         //Check if system-log setting array is set
         if (!$logNamespace) {
@@ -86,7 +90,7 @@ class SystemLog
             function (
                 $step,
                 $params,
-                $method, //HTTP method
+                $method /*HTTP method */,
                 $headers,
                 $callbackVariables,
                 $invokedController,
@@ -98,13 +102,18 @@ class SystemLog
             ) {
                 list($URI) = self::URI();
 
-                $matrixKey = $invokedController . '::' . $invokedMethod;
-
+                $matrixKey = trim($invokedController, '\\') . '::' . $invokedMethod;
+                
                 $flags = (
                     isset($logMatrix[$matrixKey])
                     ? $logMatrix[$matrixKey]
                     : self::LOG_STANDARD
                 );
+
+                //If ignore flag is active, dont store anything
+                if (($flags & self::LOG_IGNORE) !== 0) {
+                    return;
+                }
 
                 $object = [
                     'URI' => $URI,
@@ -121,6 +130,10 @@ class SystemLog
                     'additional_parameters' => $additionalParameters
                 ];
 
+                if (($flags & self::LOG_USER_ID) !== 0) {
+                    $user = \Phramework\Phramework::getUser();
+                    $object['user_id'] = ($user ? $user->id : false);
+                }
 
                 if (($flags & self::LOG_REQUEST_HEADERS) !== 0) {
                     $object['request_headers'] = $headers;
@@ -164,15 +177,45 @@ class SystemLog
                 $exception
             ) use (
                 $logObject,
-                $logMatrix,
+                $logMatrixException,
                 $additionalParameters
             ) {
+                $matrixKey = get_class($exception);
+
+                $flags = (
+                    isset($logMatrixException[$matrixKey])
+                    ? $logMatrixException[$matrixKey]
+                    : self::LOG_STANDARD
+                );
+
+                //If ignore flag is active, dont store anything
+                if (($flags & self::LOG_IGNORE) !== 0) {
+                    return;
+                }
+
+                list($URI) = self::URI();
+
                 $object = [
-                    'code' => $code,
-                    'errors' => $errors
+                    'URI' => $URI,
+                    'method' => $method,
+                    'user_id' => null,
+                    'errors' => $errors,
+                    'request_headers' => null,
+                    'request_params' => null,
+                    'request_timestamp' => $_SERVER['REQUEST_TIME'],
+                    'response_headers' => null,
+                    'response_body'    => null,
+                    'response_timestamp' => time(),
+                    'response_status_code' => http_response_code(),
+                    'exception' => $matrixKey,
+                    'flags' => $flags,
+                    'additional_parameters' => $additionalParameters
                 ];
 
-                //list($URL) = self::URI();
+                if (($flags & self::LOG_USER_ID) !== 0) {
+                    $user = \Phramework\Phramework::getUser();
+                    $object['user_id'] = ($user ? $user->id : false);
+                }
 
                 $logObject->log($step, $object);
             }

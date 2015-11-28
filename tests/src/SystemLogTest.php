@@ -16,7 +16,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
     {
         //force uri
         $_SERVER['REQUEST_URI'] = '/dummy/10/';
-
+        //$_SERVER['REQUEST_URI'] = '/xdummy/10/';
         $_GET['ok'] = true;
         //$_SERVER['REQUEST_URI'] = '/dummy/';
 
@@ -24,17 +24,26 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
             'system-log' => [
                 'log' => '\\Phramework\\SystemLog\\Log\\TerminalLog',
                 'matrix' => [
-                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET'
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET'
                         =>    SystemLog::LOG_REQUEST_HEADER_AGENT
                             | SystemLog::LOG_REQUEST_PARAMS
                             | SystemLog::LOG_RESPONSE_BODY
                             | SystemLog::LOG_REQUEST_HEADERS,
-                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController::GETById'
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GETById'
                         =>    SystemLog::LOG_REQUEST_PARAMS
                             | SystemLog::LOG_RESPONSE_BODY
                 ],
-                'matrix-error' => [
-                    '\Exception' => 0
+                'matrix-exception' => [
+                    'Exception'
+                        =>    SystemLog::LOG_STANDARD,
+                    'Phramework\\Exceptions\\ServerException'
+                        =>    SystemLog::LOG_REQUEST_HEADER_AGENT
+                            | SystemLog::LOG_REQUEST_PARAMS
+                            | SystemLog::LOG_RESPONSE_BODY
+                            | SystemLog::LOG_REQUEST_HEADERS,
+                    'Phramework\\Exceptions\\NotFoundException'
+                        =>    SystemLog::LOG_STANDARD
+                            | SystemLog::LOG_USER_ID,
                 ],
                 'database-log' => [
                     'driver' => 'postgresql',
