@@ -8,7 +8,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
 {
 
     private $phramework;
-
+    private $systemLog;
     /**
      * This method is called before a test is executed.
      */
@@ -56,6 +56,8 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+
+
         $this->phramework = new Phramework(
             $settings,
             new \Phramework\URIStrategy\URITemplate([
@@ -79,6 +81,8 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
                 ],
             ])
         );
+
+        $this->systemLog = new SystemLog($settings['system-log']);
     }
 
     /**
@@ -94,7 +98,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegister()
     {
-        SystemLog::register([
+        $this->systemLog->register([
             'API' => 'phpunit'
         ]);
 

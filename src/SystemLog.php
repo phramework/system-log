@@ -32,8 +32,12 @@ use \Phramework\Extensions\StepCallback;
  */
 class SystemLog
 {
-    const LOG_IGNORE                  = 1;
+
     const LOG_STANDARD                = 0;
+    /**
+     * Will not store this request to log
+     */
+    const LOG_IGNORE                  = 1;
     const LOG_USER_ID = 2;
     const LOG_REQUEST_HEADER_AGENT    = 4;
     const LOG_REQUEST_HEADER_REFERER  = 8;
@@ -49,36 +53,49 @@ class SystemLog
     /**
      * @var \Phramework\SystemLog\Log\ILog
      */
-    protected static $logObject;
-
+    protected $logObject;
     /**
-     * Register callbacks
+     * @var array
      */
-    public static function register($settings, $additionalParameters = [])
-    {
-        //Get settings
-        $logNamespace = Phramework::getSetting('system-log', 'log');
+    protected $settings;
 
-        $logMatrix          = Phramework::getSetting('system-log', 'matrix');
-        $logMatrixException = Phramework::getSetting('system-log', 'matrix-exception');
+    public function __construct($settings)
+    {
+        $this->settings = $settings;
+
 
         //Check if system-log setting array is set
-        if (!$logNamespace) {
+        if (!isset($settings['log'])) {
             throw new \Phramework\Exceptions\ServerException(
-                'system-log log setting is not set!'
+                'system-log.log setting is not set!'
             );
         }
 
+        $logNamespace = $settings['log'];
+
         //Create new log implemtation object
-        self::$logObject = $logObject = new $logNamespace(
-            Phramework::getSetting('system-log')
+        $this->logObject = new $logNamespace(
+            $settings
         );
 
-        if (!($logObject instanceof \Phramework\SystemLog\Log\ILog)) {
+        if (!($this->logObject instanceof \Phramework\SystemLog\Log\ILog)) {
             throw new \Exception(
                 'Class is not implementing \Phramework\SystemLog\Log\ILog'
             );
         }
+    }
+
+    /**
+     * Register callbacks
+     */
+    public function register($additionalParameters = [])
+    {
+        $settings = $this->settings;
+        
+        $logMatrix          = $settings['matrix'];
+        $logMatrixException = $settings['matrix-exception'];
+
+        $logObject = $this->logObject;
 
         /*
          * Register step callbacks
@@ -126,8 +143,10 @@ class SystemLog
                     'response_body'    => null,
                     'response_timestamp' => time(),
                     'response_status_code' => http_response_code(),
-                    'flags' => $flags,
-                    'additional_parameters' => $additionalParameters
+                    'flags' => $flags, /*Used log flags*/
+                    'additional_parameters' => $additionalParameters,
+                    'errors' => null, /*Used in errors*/
+                    'exception' => null /*Used in errors*/
                 ];
 
                 if (($flags & self::LOG_USER_ID) !== 0) {
