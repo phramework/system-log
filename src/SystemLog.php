@@ -54,7 +54,7 @@ class SystemLog
     /**
      * Register callbacks
      */
-    public static function register($additionalParameters = [])
+    public static function register($settings, $additionalParameters = [])
     {
         //Get settings
         $logNamespace = Phramework::getSetting('system-log', 'log');
@@ -103,7 +103,7 @@ class SystemLog
                 list($URI) = self::URI();
 
                 $matrixKey = trim($invokedController, '\\') . '::' . $invokedMethod;
-                
+
                 $flags = (
                     isset($logMatrix[$matrixKey])
                     ? $logMatrix[$matrixKey]
@@ -156,8 +156,6 @@ class SystemLog
                         //$object['response_headers'] = $headers_list;
                     }
                 }
-
-                //echo json_encode($object, JSON_PRETTY_PRINT) . PHP_EOL;
 
                 $logObject->log($step, $object);
             }

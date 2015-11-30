@@ -68,7 +68,7 @@ class DatabaseLog implements ILog
                 'Setting system-log.database-log is not set'
             );
         }
-        
+
         $settingsDb = $settings['database-log'];
 
         $adapterName = $settingsDb['adapter'];
@@ -81,7 +81,7 @@ class DatabaseLog implements ILog
                 break;
             case 'mysql':
             case 'mariadb':
-                $this->adapter = new \Phramework\Database\PostgreSQL(
+                $this->adapter = new \Phramework\Database\MySQL(
                     $settingsDb
                 );
                 break;
