@@ -87,11 +87,16 @@ class SystemLog
 
     /**
      * Register callbacks
+     * @param null|object $additionalParameters
      */
-    public function register($additionalParameters = [])
+    public function register($additionalParameters = null)
     {
+        if ($additionalParameters && !is_object($additionalParameters)) {
+            throw new Exception('additionalParameters must be an object');
+        }
+
         $settings = $this->settings;
-        
+
         $logMatrix          = $settings['matrix'];
         $logMatrixException = $settings['matrix-exception'];
 
@@ -132,7 +137,7 @@ class SystemLog
                     return;
                 }
 
-                $object = [
+                $object = (object)[
                     'URI' => $URI,
                     'method' => $method,
                     'user_id' => null,
@@ -151,28 +156,28 @@ class SystemLog
 
                 if (($flags & self::LOG_USER_ID) !== 0) {
                     $user = \Phramework\Phramework::getUser();
-                    $object['user_id'] = ($user ? $user->id : false);
+                    $object->user_id = ($user ? $user->id : false);
                 }
 
                 if (($flags & self::LOG_REQUEST_HEADERS) !== 0) {
-                    $object['request_headers'] = $headers;
+                    $object->request_headers = $headers;
                 }
 
                 if (($flags & self::LOG_REQUEST_PARAMS) !== 0) {
-                    $object['request_params'] = $params;
+                    $object->request_params = $params;
                 }
 
                 if (($flags & self::LOG_RESPONSE_HEADER) !== 0) {
-                    //$object['response_headers'] = headers_list();
+                    //$object->response_headers = headers_list();
                 }
 
                 if (($flags & self::LOG_RESPONSE_BODY) !== 0) {
-                    $object['response_body'] = ob_get_contents();
+                    $object->response_body = ob_get_contents();
 
                     if (($flags & self::LOG_RESPONSE_HEADER) === 0) {
 
                         //$headers_list = headers_list();
-                        //$object['response_headers'] = $headers_list;
+                        //$object->response_headers = $headers_list;
                     }
                 }
 
@@ -212,7 +217,7 @@ class SystemLog
 
                 list($URI) = self::URI();
 
-                $object = [
+                $object = (object)[
                     'URI' => $URI,
                     'method' => $method,
                     'user_id' => null,
@@ -231,7 +236,7 @@ class SystemLog
 
                 if (($flags & self::LOG_USER_ID) !== 0) {
                     $user = \Phramework\Phramework::getUser();
-                    $object['user_id'] = ($user ? $user->id : false);
+                    $object->user_id = ($user ? $user->id : false);
                 }
 
                 $logObject->log($step, $object);
