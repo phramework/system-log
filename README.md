@@ -13,6 +13,7 @@ Edit your application's `index.php`, create a new SystemLog object and call it's
 For example:
 
 ```php
+<?php
 use \Phramework\Phramework;
 use \Phramework\SystemLog;
 
@@ -20,9 +21,18 @@ $settings = [
     'system-log' => [
         'log' => '\\Phramework\\SystemLog\\Log\\TerminalLog',
         'matrix' => [
-            'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET'
+            'Me\\APP\\Controllers\\DummyController::GET'
                 =>    SystemLog::LOG_REQUEST_HEADER_AGENT
                     | SystemLog::LOG_REQUEST_PARAMS
+        ],
+        'matrix-exception' => [
+            'Exception'
+                =>    SystemLog::LOG_STANDARD,
+            'Phramework\\Exceptions\\ServerException'
+                =>    SystemLog::LOG_REQUEST_HEADER_AGENT
+                    | SystemLog::LOG_REQUEST_PARAMS
+                    | SystemLog::LOG_RESPONSE_BODY
+                    | SystemLog::LOG_REQUEST_HEADERS
         ]
     ]
 ];
