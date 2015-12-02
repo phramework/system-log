@@ -56,7 +56,7 @@ class Bootstrap
                             | SystemLog::LOG_USER_ID,
                 ],
                 'database-log' => [
-                    'driver' => 'postgresql',
+                    'adapter' => 'postgresql',
                     'host' => '127.0.0.1',
                     'name' => 'system-log',
                     'password' => 'pass',
