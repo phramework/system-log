@@ -58,9 +58,9 @@ class Bootstrap
                 'database-log' => [
                     'adapter' => 'postgresql',
                     'host' => '127.0.0.1',
-                    'name' => 'system-log',
-                    'password' => 'pass',
-                    'username' => 'username',
+                    'name' => 'ostomate',
+                    'password' => 'FieShakaic9aeSaed6',
+                    'username' => 'logger',
                     'port' => 5432
                 ]
             ]

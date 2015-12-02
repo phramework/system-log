@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2015 Xenofon Spafaridis
+ * Copyright 2015 Xenofon Spafaridis.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 namespace Phramework\SystemLog\Log;
 
-use \Phramework\Phramework;
-use \Phramework\Exceptions\ServerException;
+use Phramework\Phramework;
+use Phramework\Exceptions\ServerException;
 
 /**
  * Log implementation using databse as store method
@@ -30,7 +29,8 @@ use \Phramework\Exceptions\ServerException;
  *     - port
  *     - name
  *     - username
- *     - password
+ *     - password.
+ *
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
@@ -39,19 +39,15 @@ class DatabaseLog implements ILog
     /**
      * @param string $step
      * @param array  $data
+     *
      * @todo surround with try catch
      */
     public function log($step, $data)
     {
-        $adapter->execute(
-            'INSERT INTO "log"
-              ("step", "data")
-              VALUES
-              (?, ?)',
-            [
-                $step,
-                json_encode($data)
-            ]
+        return \Phramework\Database\Operations\Create::create(
+          $data,
+          'api_log',
+          'log_store'
         );
     }
 
@@ -59,6 +55,7 @@ class DatabaseLog implements ILog
 
     /**
      * @param array $settings Phramework settings
+     *
      * @throws \Phramework\Exceptions\ServerException
      */
     public function __construct($settings)
