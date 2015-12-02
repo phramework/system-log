@@ -28,10 +28,22 @@ use \Phramework\Phramework;
 class PHPUnit extends \Phramework\SystemLog\Log\TerminalLog
 {
     protected static $callback;
+    protected static $displayOutput = false;
 
+    /**
+     * @param callable $callback
+     */
     public static function setCallback($callback)
     {
         self::$callback = $callback;
+    }
+
+    /**
+     * @param boolean $displayOutput
+     */
+    public static function setDisplayOutput($displayOutput)
+    {
+        self::$displayOutput = $displayOutput;
     }
 
     public function log($step, $data)
@@ -43,6 +55,9 @@ class PHPUnit extends \Phramework\SystemLog\Log\TerminalLog
                 $data
             );
         }
-        parent::log($step, $data);
+        
+        if (self::$displayOutput) {
+            parent::log($step, $data);
+        }
     }
 }

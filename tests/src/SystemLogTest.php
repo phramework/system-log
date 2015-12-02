@@ -53,12 +53,6 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        //force uri
-        $_SERVER['REQUEST_URI'] = '/dummy/1/';
-        //$_SERVER['REQUEST_URI'] = '/xdummy/10/';
-        $_GET['ok'] = true;
-        //$_SERVER['REQUEST_URI'] = '/dummy/';
-
         //Prepare phramework instance
         $this->phramework = \Phramework\SystemLog\APP\Bootstrap::prepare();
 
@@ -77,11 +71,16 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test SystemLog on success full (200) request
+     * This test will invoke phramework
      * @covers Phramework\SystemLog\SystemLog::register
      */
-    public function testRegister()
+    public function testRegisterSuccess()
     {
         $this->setUp();
+
+        //Force URI route
+        $_SERVER['REQUEST_URI'] = '/dummy/1/';
 
         $additional_parameters = (object)[
             'API' => 'phpunit'
@@ -181,7 +180,8 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
     {
         $this->setUp();
 
-        $_SERVER['REQUEST_URI'] = '/dummyNotFound/';
+        //Force URI route
+        $_SERVER['REQUEST_URI'] = '/not_found/';
 
         $additional_parameters = (object)[
             'API' => 'phpunit'
@@ -234,7 +234,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
             $this->object->response_timestamp,
             'Response timestamp must be greater or equal to request timestamp'
         );
-        
+
         //Expect required keys
         foreach (SystemLogTest::$objectKeys as $key) {
             $this->assertObjectHasAttribute(

@@ -28,12 +28,11 @@ use \Phramework\SystemLog\SystemLog;
  */
 class Bootstrap
 {
-
     public static function getSettings()
     {
         return [
             'system-log' => [
-                'log' => '\\Phramework\\SystemLog\\APP\\Log\\PHPUnit', //'\\Phramework\\SystemLog\\Log\\TerminalLog',
+                'log' => '\\Phramework\\SystemLog\\APP\\Log\\PHPUnit',
                 'matrix' => [
                     'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET'
                         =>    SystemLog::LOG_REQUEST_HEADER_AGENT
@@ -68,6 +67,11 @@ class Bootstrap
         ];
     }
 
+    /**
+     * Prepare a phramework instance
+     * @uses Bootstrap::getSettings() to fetch the settings
+     * @return Phramework
+     */
     public static function prepare()
     {
         $phramework = new Phramework(
