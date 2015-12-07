@@ -181,7 +181,7 @@ class SystemLog
                     }
                 }
 
-                $logObject->log($step, $object);
+                return $logObject->log($step, $object);
             }
         );
 
@@ -239,7 +239,7 @@ class SystemLog
                     $object->user_id = ($user ? $user->id : false);
                 }
 
-                $logObject->log($step, $object);
+                return $logObject->log($step, $object);
             }
         );
     }

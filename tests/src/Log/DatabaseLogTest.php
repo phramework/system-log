@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2015 Xenofon Spafaridis
+ * Copyright 2015 Xenofon Spafaridis.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 namespace Phramework\SystemLog\Log;
 
-use \Phramework\Phramework;
-use \Phramework\Extensions\StepCallback;
+use Phramework\SystemLog\SystemLog;
 
 /**
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
@@ -27,9 +25,10 @@ use \Phramework\Extensions\StepCallback;
 class DatabaseLogTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var DatabaseLog
+     * @var SystemLog
      */
-    protected $databaseLog;
+    protected $systemLog;
+    protected $phramework;
 
     /**
      * This method is called before a test is executed.
@@ -38,7 +37,11 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
     {
         $settings = \Phramework\SystemLog\APP\Bootstrap::getSettings();
 
-        $this->databaseLog = new DatabaseLog($settings['system-log']);
+        $this->phramework = \Phramework\SystemLog\APP\Bootstrap::prepare();
+
+        $settings['system-log']['log'] = '\\Phramework\\SystemLog\\Log\\DatabaseLog';
+        // $settings['system-log']['log'] = '\\Phramework\\SystemLog\\Log\\TerminalLog';
+        $this->systemLog = new SystemLog($settings['system-log']);
     }
 
     /**
@@ -46,7 +49,6 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-
     }
 
     /**
@@ -54,6 +56,7 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
      */
     public function testLog()
     {
-        $this->markTestIncomplete('todo');
+        $this->systemLog->register();
+        $this->phramework->invoke();
     }
 }

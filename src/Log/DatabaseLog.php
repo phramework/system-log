@@ -44,8 +44,15 @@ class DatabaseLog implements ILog
      */
     public function log($step, $data)
     {
+        $data->request_headers = json_encode($data->request_headers);
+        $data->request_params = json_encode($data->request_params);
+        $data->errors = (empty($data->errors)) ? '{}' : json_encode($data->errors);
+        $data->additional_parameters =
+            (empty($data->additional_parameters)) ? '{}' : json_encode($data->additional_parameters);
+        $data->response_status_code = (empty($data->response_status_code)) ? '199' : $data->response_status_code;
+
         return \Phramework\Database\Operations\Create::create(
-          $data,
+          (array) $data,
           'api_log',
           'log_store'
         );
@@ -89,12 +96,14 @@ class DatabaseLog implements ILog
                 ));
                 break;
         }
+
+        \Phramework\Database\Database::setAdapter($this->adapter);
     }
 
-    protected function __destruct()
+    public function __destruct()
     {
         try {
-            $adapter->close();
+            $this->adapter->close();
         } catch (\Exception $e) {
         }
     }
