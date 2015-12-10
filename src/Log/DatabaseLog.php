@@ -44,7 +44,6 @@ class DatabaseLog implements ILog
      */
     public function log($step, $data)
     {
-        $data->user_id = (empty($data->user_id)) ? -1 : $data->user_id;
         $data->request_headers = json_encode($data->request_headers);
         $data->request_params = json_encode($data->request_params);
         $data->errors = (empty($data->errors)) ? '{}' : json_encode($data->errors);
