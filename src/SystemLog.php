@@ -23,10 +23,10 @@ use \Phramework\Extensions\StepCallback;
 /**
  * SystemLog package, used to log requests and exceptions
  * Defined settings:
- * - system-log[]
- *   - log Log implentation class (full class path)
- *   - matrix[]
- *   - matrix-exception[]
+ * - array system-log
+ *   - string log Log implentation class (full class path)
+ *   - array  matrix  *[Optional]*
+ *   - array  matrix-exception *[Optional]*
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
@@ -51,18 +51,22 @@ class SystemLog
     const LOG_RESPONSE_BODY   = 2048;
 
     /**
-     * @var \Phramework\SystemLog\Log\ILog
+     * @var Phramework\SystemLog\Log\ILog
      */
     protected $logObject;
+
     /**
      * @var array
      */
     protected $settings;
 
+    /**
+     * Create new system log
+     * @param array $settings
+     */
     public function __construct($settings)
     {
         $this->settings = $settings;
-
 
         //Check if system-log setting array is set
         if (!isset($settings['log'])) {
@@ -80,7 +84,7 @@ class SystemLog
 
         if (!($this->logObject instanceof \Phramework\SystemLog\Log\ILog)) {
             throw new \Exception(
-                'Class is not implementing \Phramework\SystemLog\Log\ILog'
+                'Class is not implementing Phramework\SystemLog\Log\ILog'
             );
         }
     }
@@ -92,7 +96,7 @@ class SystemLog
     public function register($additionalParameters = null)
     {
         if ($additionalParameters && !is_object($additionalParameters)) {
-            throw new Exception('additionalParameters must be an object');
+            throw new \Exception('additionalParameters must be an object');
         }
 
         $settings = $this->settings;
@@ -122,7 +126,7 @@ class SystemLog
                 $logMatrix,
                 $additionalParameters
             ) {
-                list($URI) = self::URI();
+                list($URI) = \Phramework\URIStrategy\URITemplate::URI();
 
                 $matrixKey = trim($invokedController, '\\') . '::' . $invokedMethod;
 
@@ -138,6 +142,7 @@ class SystemLog
                 }
 
                 $object = (object)[
+                    'request_id' => Phramework::getRequestUUID(),
                     'URI' => $URI,
                     'method' => $method,
                     'user_id' => null,
@@ -155,7 +160,7 @@ class SystemLog
                 ];
 
                 if (($flags & self::LOG_USER_ID) !== 0) {
-                    $user = \Phramework\Phramework::getUser();
+                    $user = Phramework::getUser();
                     $object->user_id = ($user ? $user->id : false);
                 }
 
@@ -215,9 +220,10 @@ class SystemLog
                     return;
                 }
 
-                list($URI) = self::URI();
+                list($URI) = \Phramework\URIStrategy\URITemplate::URI();
 
                 $object = (object)[
+                    'request_id' => Phramework::getRequestUUID(),
                     'URI' => $URI,
                     'method' => $method,
                     'user_id' => null,
@@ -235,47 +241,12 @@ class SystemLog
                 ];
 
                 if (($flags & self::LOG_USER_ID) !== 0) {
-                    $user = \Phramework\Phramework::getUser();
+                    $user = Phramework::getUser();
                     $object->user_id = ($user ? $user->id : false);
                 }
 
                 return $logObject->log($step, $object);
             }
         );
-    }
-
-    /**
-     * Helper method
-     * Get current URI and GET parameters from the requested URI
-     * @return string[2] Returns an array with current URI and GET parameters
-     */
-    public static function URI()
-    {
-        $REDIRECT_QUERY_STRING = (
-            isset($_SERVER['QUERY_STRING'])
-            ? $_SERVER['QUERY_STRING']
-            : ''
-        );
-
-        $REDIRECT_URL = '';
-
-        if (isset($_SERVER['REQUEST_URI'])) {
-            $url_parts = parse_url($_SERVER['REQUEST_URI']);
-            $REDIRECT_URL = $url_parts['path'];
-        }
-
-        $URI = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-
-        $URI = '/' . trim(str_replace($URI, '', $REDIRECT_URL), '/');
-        $URI = urldecode($URI) . '/';
-
-        $URI = trim($URI, '/');
-
-        $parameters = [];
-
-        //Extract parametrs from QUERY string
-        parse_str($REDIRECT_QUERY_STRING, $parameters);
-
-        return [$URI, $parameters];
     }
 }

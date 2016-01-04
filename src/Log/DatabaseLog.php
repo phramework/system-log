@@ -22,14 +22,21 @@ use Phramework\Exceptions\ServerException;
 /**
  * Log implementation using databse as store method
  * Defined settings:
- * - system-log[]
- *   - database-log[]
- *     - adapter
- *     - host
- *     - port
- *     - name
- *     - username
- *     - password.
+ * - array system-log
+ *   - object database-log
+ *     - string  adapter, IAdapter's implementation class path
+ *         <div class="alert alert-info">
+ *         <i>Example:</i>
+ *         <code>
+ *         'adapter' => 'Phramework\\Database\\MySQL',
+ *         </code>
+ *         </div>
+ *     - string host
+ *     - string port
+ *     - string name
+ *     - string username
+ *     - string password
+ *     - <li>string  schema, <i>[Optional]</i>, Tables schema, default is null</li>
  *
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
@@ -37,33 +44,48 @@ use Phramework\Exceptions\ServerException;
 class DatabaseLog implements ILog
 {
     /**
+     * Table's schema, null if default is used
+     * @var null|string
+     */
+    protected $schema = null;
+
+    /**
      * @param string $step
      * @param array  $data
      *
      * @todo surround with try catch
+     * @todo use logAdapter to store the data
      */
     public function log($step, $data)
     {
         $data->request_headers = json_encode($data->request_headers);
+
         $data->request_params = json_encode($data->request_params);
+
         $data->errors = (empty($data->errors)) ? '{}' : json_encode($data->errors);
+
         $data->additional_parameters =
             (empty($data->additional_parameters)) ? '{}' : json_encode($data->additional_parameters);
+
         $data->response_status_code = (empty($data->response_status_code)) ? '199' : $data->response_status_code;
 
-        return \Phramework\Database\Operations\Create::create(
-          (array) $data,
-          'api_log',
-          'log_store'
-        );
+        //return \Phramework\Database\Operations\Create::create(
+        //    (array)$data,
+        //    'api_log',
+        //    'log_store'
+        //);
+        //
     }
 
-    protected $adapter;
+    /**
+     * Internal database adapter for logging
+     * @var Phramework\Database\IAdapter
+     */
+    protected $logAdapter;
 
     /**
      * @param array $settings Phramework settings
-     *
-     * @throws \Phramework\Exceptions\ServerException
+     * @throws Exception
      */
     public function __construct($settings)
     {
@@ -75,29 +97,26 @@ class DatabaseLog implements ILog
 
         $settingsDb = $settings['database-log'];
 
-        $adapterName = $settingsDb['adapter'];
+        $logAdapterNamespace = $settingsDb->adapter;
 
-        switch ($adapterName) {
-            case 'postgresql':
-                $this->adapter = new \Phramework\Database\PostgreSQL(
-                    $settingsDb
-                );
-                break;
-            case 'mysql':
-            case 'mariadb':
-                $this->adapter = new \Phramework\Database\MySQL(
-                    $settingsDb
-                );
-                break;
-            default:
-                throw new ServerException(sprintf(
-                    'Adapter "%s" is not supported!',
-                    $adapterName
-                ));
-                break;
+        //Initialize new adapter used to store the log queries
+        $this->logAdapter = new $logAdapterNamespace(
+            (array)$settingsDb
+        );
+
+        if (!($this->logAdapter instanceof \Phramework\Database\IAdapter)) {
+            throw new \Exception(sprintf(
+                'Class "%s" is not implementing Phramework\Database\IAdapter',
+                $logAdapterNamespace
+            ));
         }
 
-        \Phramework\Database\Database::setAdapter($this->adapter);
+        //Check if schema database setting is set
+        if (isset($settingsDb->schema)) {
+            $this->schema = $settingsDb->schema;
+        }
+
+        \Phramework\Database\Database::setAdapter($this->logAdapter);
     }
 
     public function __destruct()

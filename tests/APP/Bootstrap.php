@@ -32,8 +32,8 @@ class Bootstrap
     {
         $settings = [
             'debug' => true,
-            'system-log' => [
-                'log' => '\\Phramework\\SystemLog\\APP\\Log\\PHPUnit',
+            'system-log' => (object)[
+                'log' => 'Phramework\\SystemLog\\APP\\Log\\PHPUnit',
                 'matrix' => [
                     'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET' => SystemLog::LOG_REQUEST_HEADER_AGENT
                             | SystemLog::LOG_REQUEST_PARAMS
