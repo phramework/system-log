@@ -39,7 +39,7 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
 
         $this->phramework = \Phramework\SystemLog\APP\Bootstrap::prepare();
 
-        $settings['system-log']['log'] = '\\Phramework\\SystemLog\\Log\\DatabaseLog';
+        $settings['system-log']->log = 'Phramework\\SystemLog\\Log\\DatabaseLog';
         // $settings['system-log']['log'] = '\\Phramework\\SystemLog\\Log\\TerminalLog';
         $this->systemLog = new SystemLog($settings['system-log']);
     }

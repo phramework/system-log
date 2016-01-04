@@ -62,20 +62,24 @@ class SystemLog
 
     /**
      * Create new system log
-     * @param array $settings
+     * @param object $settings
      */
     public function __construct($settings)
     {
+        if (is_array($settings)) {
+            $settings = (object)($setting);
+        }
+
         $this->settings = $settings;
 
         //Check if system-log setting array is set
-        if (!isset($settings['log'])) {
+        if (!isset($settings->log)) {
             throw new \Phramework\Exceptions\ServerException(
                 'system-log.log setting is not set!'
             );
         }
 
-        $logNamespace = $settings['log'];
+        $logNamespace = $settings->log;
 
         //Create new log implemtation object
         $this->logObject = new $logNamespace(
@@ -101,8 +105,8 @@ class SystemLog
 
         $settings = $this->settings;
 
-        $logMatrix          = $settings['matrix'];
-        $logMatrixException = $settings['matrix-exception'];
+        $logMatrix          = (array)$settings->matrix;
+        $logMatrixException = (array)$settings->{'matrix-exception'};
 
         $logObject = $this->logObject;
 

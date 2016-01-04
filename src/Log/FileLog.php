@@ -38,24 +38,24 @@ class FileLog implements ILog
     }
 
     /**
-     * @param array $settings Phramework settings
+     * @param object $settings Phramework settings
      * @throws \Phramework\Exceptions\ServerException
      */
     public function __construct($settings)
     {
-        if (!isset($settings['file-log'])) {
+        if (!isset($settings->{'file-log'})) {
             throw new \Phramework\Exceptions\ServerException(
                 'Setting system-log.file-log is not set'
             );
         }
 
-        if (!isset($settings['file-log']['path'])) {
+        if (!isset($settings->{'file-log'}->path)) {
             throw new \Phramework\Exceptions\ServerException(
                 'Setting system-log.file-log.path is not set'
             );
         }
 
-        $this->path = $settings['file-log']['path'];
+        $this->path = $settings->{'file-log'}->path;
 
         if (!is_writable($this->path)) {
             throw new \Phramework\Exceptions\ServerException(sprintf(

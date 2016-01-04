@@ -14,7 +14,7 @@
   }],
   "require": {
     "php": ">=5.6",
-    "phramework/phramework": "^1.0.0"
+    "phramework/phramework": "^1.2"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
@@ -27,6 +27,7 @@
       "Phramework\\SystemLog\\": "src"
     }
   },
+  "minimum-stability": "dev",
   "autoload-dev": {
     "psr-4": {
       "Phramework\\SystemLog\\APP\\": "tests/APP"

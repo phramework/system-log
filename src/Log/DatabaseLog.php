@@ -22,7 +22,7 @@ use Phramework\Exceptions\ServerException;
 /**
  * Log implementation using databse as store method
  * Defined settings:
- * - array system-log
+ * - object system-log
  *   - object database-log
  *     - string  adapter, IAdapter's implementation class path
  *         <div class="alert alert-info">
@@ -36,7 +36,8 @@ use Phramework\Exceptions\ServerException;
  *     - string name
  *     - string username
  *     - string password
- *     - <li>string  schema, <i>[Optional]</i>, Tables schema, default is null</li>
+ *     - <li>string  schema, <i>[Optional]</i>, Table's schema, default is null</li>
+ *     - <li>string  table, <i>[Optional]</i>, Table's name, default is `"system-log"`</li>
  *
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
@@ -89,13 +90,13 @@ class DatabaseLog implements ILog
      */
     public function __construct($settings)
     {
-        if (!isset($settings['database-log'])) {
+        if (!isset($settings->{'database-log'})) {
             throw new ServerException(
                 'Setting system-log.database-log is not set'
             );
         }
 
-        $settingsDb = $settings['database-log'];
+        $settingsDb = $settings->{'database-log'};
 
         $logAdapterNamespace = $settingsDb->adapter;
 
