@@ -7,5 +7,5 @@ $settings['system-log']['database-log'] =
         'name' => 'db_name',
         'password' => 'db_pass',
         'username' => 'db_user',
-        'port' => 5432,
+        'port' => 5433//5432,
     ]);
