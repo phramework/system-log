@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Phramework\SystemLog\SystemLog | system-log</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?a2b5efb503881470385230f40f9bcc3c94d665e7">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">system-log</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Phramework.SystemLog.html" title="Summary of Phramework\SystemLog"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+					<li class="divider-vertical"></li>
+
+					<li>
+						<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+					</li>
+
+						<li>
+							<a href="annotation-group-deprecated.html" title="List of elements with deprecated annotation">
+								<span>Deprecated</span>
+							</a>
+						</li>
+						<li>
+							<a href="annotation-group-todo.html" title="List of elements with todo annotation">
+								<span>Todo</span>
+							</a>
+						</li>
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Phramework.html">
+							Phramework<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Phramework.Exceptions.html">
+							Exceptions						</a>
+							</li>
+					<li class="active">
+						<a href="namespace-Phramework.SystemLog.html">
+							SystemLog<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Phramework.SystemLog.Log.html">
+							Log						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li class="active"><a href="class-Phramework.SystemLog.SystemLog.html">SystemLog</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class SystemLog</h1>
+
+
+	<div class="description">
+	<p>SystemLog package, used to log requests and exceptions
+Defined settings: <br/></p>
+
+<ul>
+<li> object system-log <ul> <li>string  log Log implentation class (full class path)</li> <li>integer body_raw_limit <i>[Optional]</i> In bytes, default is 1000000</li> <li>array   matrix <i>[Optional]</i></li> <li>array   matrix-exception <i>[Optional]</i></li> </ul>
+</li>
+</ul>
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Phramework.html">Phramework</a>\<a href="namespace-Phramework.SystemLog.html">SystemLog</a><br>
+		
+
+				<b>License:</b>
+				<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache-2.0</a><br>
+				<b>Author:</b>
+				Xenofon Spafaridis <a href="&#109;&#97;&#x69;&#x6c;&#116;&#111;&#x3a;&#x6e;o&#104;&#112;&#x6f;&#x6e;&#101;&#120;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;.&#99;&#111;&#x6d;">&#x6e;o&#104;&#112;&#x6f;&#x6e;&#101;&#120;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;.&#99;&#111;&#x6d;</a><br>
+				<b>Since:</b>
+				0.0.0<br>
+				<b>Link:</b>
+				Source code https://github.com/phramework/system-log<br>
+				<b>Link:</b>
+				Documentation https://phramework.github.io/system-log/<br>
+			<b>Located at</b> SystemLog.php		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code>__construct( <span>object <var>$settings</var></span> )</code>
+
+			<div class="description short">
+				<p>Create new system log instance
+Use register method to register the instance to phramework. <br/>
+<strong>NOTE</strong> that multiple system log instances can be created, this is
+useful when different log levels for separate system reports are needed.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new system log instance
+Use register method to register the instance to phramework. <br/>
+<strong>NOTE</strong> that multiple system log instances can be created, this is
+useful when different log levels for separate system reports are needed.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$settings</var></dt>
+						<dd>Settings object to initialize a system log instance</dd>
+					</dl></div>
+
+
+
+					<h4>Example</h4>
+					<div class="list">
+							<pre><span class="php-comment">//Inside your index.php file</span>
+<span class="php-keyword1">include</span> __DIR__ . <span class="php-quote">'/../../vendor/autoload.php'</span>;
+
+<span class="php-keyword1">use</span> \Phramework\Phramework;
+<span class="php-keyword1">use</span> \Phramework\SystemLog\SystemLog;
+
+<span class="php-comment">//Global phramework settings</span>
+<span class="php-var">$settings</span> = [
+    <span class="php-quote">'system-log'</span> =&gt; (object)[
+      <span class="php-quote">'log'</span> =&gt; <span class="php-quote">'Phramework\\SystemLog\\APP\\Log\\TerminalLog'</span>,
+      <span class="php-quote">'body_raw_limit'</span> =&gt; <span class="php-num">1000</span>,
+      <span class="php-quote">'matrix'</span> =&gt; [
+          <span class="php-quote">'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET'</span> =&gt;
+                SystemLog::LOG_REQUEST_HEADER_AGENT
+              | SystemLog::LOG_REQUEST_PARAMS
+      ]
+      <span class="php-quote">'matrix-exception'</span> =&gt; [
+          <span class="php-quote">'Exception'</span> =&gt;
+                SystemLog::LOG_STANDARD,
+          <span class="php-quote">'Phramework\\Exceptions\\ServerException'</span> =&gt;
+                SystemLog::LOG_REQUEST_HEADER_AGENT
+              | SystemLog::LOG_REQUEST_PARAMS
+      ]
+  ]
+];
+<span class="php-comment">//Initialize phramework</span>
+<span class="php-var">$phramework</span> = <span class="php-keyword1">new</span> Phramework(
+    self::getSettings(),
+    <span class="php-var">$URIStrategy</span>
+);
+
+<span class="php-comment">//Initialize a system log instance and register it</span>
+<span class="php-var">$systemLog</span> = <span class="php-keyword1">new</span> SystemLog(<span class="php-var">$settings</span>[<span class="php-quote">'system-log'</span>]);
+<span class="php-var">$systemLog</span>-&gt;register((object)[
+    <span class="php-quote">'server'</span> =&gt; <span class="php-quote">'my server'</span>
+]);
+
+<span class="php-comment">//Invoke phramework</span>
+<span class="php-var">$phramework</span>-&gt;invoke();</pre><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="register" id="_register">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_register">#</a>
+			<code>register( <span>null|object <var>$additionalParameters</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Register system log instance to phramework</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Register system log instance to phramework</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$additionalParameters</var></dt>
+						<dd></dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						Exception
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Constants summary</h2></div>
+			<table class="summary table table-bordered table-striped constants" id="constants">
+			<tr data-order="LOG_STANDARD" id="LOG_STANDARD">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_STANDARD</b>					</code>
+
+					<div class="description short">
+						<p>Default flag for requests</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Default flag for requests</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_STANDARD" class="anchor">#</a>
+						<code><span class="php-num">0</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_EXCEPTION_STANDARD" id="LOG_EXCEPTION_STANDARD">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_EXCEPTION_STANDARD</b>					</code>
+
+					<div class="description short">
+						<p>Default flag for exceptions</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Default flag for exceptions</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_EXCEPTION_STANDARD" class="anchor">#</a>
+						<code><span class="php-num">0</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_IGNORE" id="LOG_IGNORE">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_IGNORE</b>					</code>
+
+					<div class="description short">
+						<p>Will ignore this request from system log</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Will ignore this request from system log</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_IGNORE" class="anchor">#</a>
+						<code><span class="php-num">1</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_USER_ID" id="LOG_USER_ID">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_USER_ID</b>					</code>
+
+					<div class="description short">
+						<p>Will log user's id if request is authenticated</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Will log user's id if request is authenticated</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_USER_ID" class="anchor">#</a>
+						<code><span class="php-num">2</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_REQUEST_HEADER_AGENT" id="LOG_REQUEST_HEADER_AGENT">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_REQUEST_HEADER_AGENT</b>					</code>
+
+					<div class="description short">
+						<p><code>User-Agent</code> header</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p><code>User-Agent</code> header</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_REQUEST_HEADER_AGENT" class="anchor">#</a>
+						<code><span class="php-num">65536</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_REQUEST_HEADER_REFERER" id="LOG_REQUEST_HEADER_REFERER">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_REQUEST_HEADER_REFERER</b>					</code>
+
+					<div class="description short">
+						<p><code>Referer</code> header</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p><code>Referer</code> header</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_REQUEST_HEADER_REFERER" class="anchor">#</a>
+						<code><span class="php-num">131072</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_REQUEST_HEADER_ACCEPT" id="LOG_REQUEST_HEADER_ACCEPT">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_REQUEST_HEADER_ACCEPT</b>					</code>
+
+					<div class="description short">
+						<p><code>Accept</code> header</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p><code>Accept</code> header</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_REQUEST_HEADER_ACCEPT" class="anchor">#</a>
+						<code><span class="php-num">524288</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_REQUEST_HEADER_CONTENT_TYPE" id="LOG_REQUEST_HEADER_CONTENT_TYPE">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_REQUEST_HEADER_CONTENT_TYPE</b>					</code>
+
+					<div class="description short">
+						<p><code>Content-Type</code> header</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p><code>Content-Type</code> header</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_REQUEST_HEADER_CONTENT_TYPE" class="anchor">#</a>
+						<code><span class="php-num">1048576</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_REQUEST_HEADERS" id="LOG_REQUEST_HEADERS">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_REQUEST_HEADERS</b>					</code>
+
+					<div class="description short">
+						<p>Will log all request headers</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Will log all request headers</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_REQUEST_HEADERS" class="anchor">#</a>
+						<code><span class="php-num">2097152</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_REQUEST_PARAMS" id="LOG_REQUEST_PARAMS">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_REQUEST_PARAMS</b>					</code>
+
+					<div class="description short">
+						<p>Will log parsed request parameters</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Will log parsed request parameters</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_REQUEST_PARAMS" class="anchor">#</a>
+						<code><span class="php-num">4194304</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_REQUEST_BODY_RAW" id="LOG_REQUEST_BODY_RAW">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_REQUEST_BODY_RAW</b>					</code>
+
+					<div class="description short">
+						<p>Will log raw request body<br/>
+See <code>body_raw_limit</code> setting, if length of request exceeds tis number
+then first <code>body_raw_limit</code> characters, prefixed by <code>TRIMMED\n</code> string
+will be used.</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Will log raw request body<br/>
+See <code>body_raw_limit</code> setting, if length of request exceeds tis number
+then first <code>body_raw_limit</code> characters, prefixed by <code>TRIMMED\n</code> string
+will be used.</p>
+
+							<h4>See</h4>
+							<div class="list">
+									<p>filter_var with FILTER_SANITIZE_STRING is applied to raw body
+https://secure.php.net/manual/en/function.filter-var.php</p><br>
+							</div>
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_REQUEST_BODY_RAW" class="anchor">#</a>
+						<code><span class="php-num">8388608</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_RESPONSE_HEADER" id="LOG_RESPONSE_HEADER">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_RESPONSE_HEADER</b>					</code>
+
+					<div class="description short">
+						<p>Will log response headers</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Will log response headers</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_RESPONSE_HEADER" class="anchor">#</a>
+						<code><span class="php-num">281474976710656</span></code>
+					</div>
+				</td>
+			</tr>
+			<tr data-order="LOG_RESPONSE_BODY" id="LOG_RESPONSE_BODY">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+<b>LOG_RESPONSE_BODY</b>					</code>
+
+					<div class="description short">
+						<p>Will log response body.
+<em>NOTE</em> if LOG_RESPONSE_HEADER is turned off, still the <code>Content-Type</code>
+response header will be written to response_headers.</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Will log response body.
+<em>NOTE</em> if LOG_RESPONSE_HEADER is turned off, still the <code>Content-Type</code>
+response header will be written to response_headers.</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#LOG_RESPONSE_BODY" class="anchor">#</a>
+						<code><span class="php-num">562949953421312</span></code>
+					</div>
+				</td>
+			</tr>
+			</table>
+		</div>
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="logObject" id="$logObject">
+			<td class="attributes"><code>
+				protected  
+				<code><a href="class-Phramework.SystemLog.Log.ILog.html">Phramework\SystemLog\Log\ILog</a></code>
+			</code></td>
+
+			<td class="name">
+<var>$logObject</var>
+				<div class="description short">
+					<p>Log storage implentation</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Log storage implentation</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$logObject" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="settings" id="$settings">
+			<td class="attributes"><code>
+				protected  
+				object
+			</code></td>
+
+			<td class="name">
+<var>$settings</var>
+				<div class="description short">
+					<p>System log instance settings</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>System log instance settings</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$settings" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		system-log API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Phramework\SystemLog\Log\DatabaseLog | system-log</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?a2b5efb503881470385230f40f9bcc3c94d665e7">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">system-log</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Phramework.SystemLog.Log.html" title="Summary of Phramework\SystemLog\Log"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+					<li class="divider-vertical"></li>
+
+					<li>
+						<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+					</li>
+
+						<li>
+							<a href="annotation-group-deprecated.html" title="List of elements with deprecated annotation">
+								<span>Deprecated</span>
+							</a>
+						</li>
+						<li>
+							<a href="annotation-group-todo.html" title="List of elements with todo annotation">
+								<span>Todo</span>
+							</a>
+						</li>
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Phramework.html">
+							Phramework<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Phramework.Exceptions.html">
+							Exceptions						</a>
+							</li>
+					<li class="active">
+						<a href="namespace-Phramework.SystemLog.html">
+							SystemLog<span></span>
+						</a>
+							<ul>
+					<li class="active">
+						<a href="namespace-Phramework.SystemLog.Log.html">
+							Log						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li class="active"><a href="class-Phramework.SystemLog.Log.DatabaseLog.html">DatabaseLog</a></li>
+				<li><a href="class-Phramework.SystemLog.Log.FileLog.html">FileLog</a></li>
+				<li><a href="class-Phramework.SystemLog.Log.TerminalLog.html">TerminalLog</a></li>
+			</ul>
+
+			<h3>Interfaces</h3>
+			<ul>
+				<li><a href="class-Phramework.SystemLog.Log.ILog.html">ILog</a></li>
+			</ul>
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class DatabaseLog</h1>
+
+
+	<div class="description">
+	<p>Log implementation using databse as storage
+Defined settings:<br/></p>
+
+<ul>
+<li> object system-log <ul> <li> object database-log <ul> <li>string  adapter, IAdapter's implementation class (full class path)</li> <li>string host</li> <li>string port</li> <li>string name</li> <li>string username</li> <li>string password</li> <li>string  schema, <i>[Optional]</i>, Table's schema, default is null</li> <li>string  table, <i>[Optional]</i>, Table's name, default is "system-log"</li> </ul> </li> </ul>
+</li>
+</ul>
+
+<p>To use DatabaseLog:
+<br/>- Set system-log's log to <code>'Phramework\\SystemLog\\APP\\Log\\DatabaseLog'</code>
+<br/>- Add database-log objecto to your settings
+<br/>See this class's <a href="#___construct">__construct</a> method for an example.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+<b><span>Phramework\SystemLog\Log\DatabaseLog</span></b>			
+			 implements 
+				<a href="class-Phramework.SystemLog.Log.ILog.html"><span>Phramework\SystemLog\Log\ILog</span></a>
+			
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Phramework.html">Phramework</a>\<a href="namespace-Phramework.SystemLog.html">SystemLog</a>\<a href="namespace-Phramework.SystemLog.Log.html">Log</a><br>
+		
+
+				<b>License:</b>
+				<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache-2.0</a><br>
+				<b>Author:</b>
+				Xenofon Spafaridis <a href="&#109;&#97;&#x69;&#x6c;&#116;&#111;&#x3a;&#x6e;o&#104;&#112;&#x6f;&#x6e;&#101;&#120;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;.&#99;&#111;&#x6d;">&#x6e;o&#104;&#112;&#x6f;&#x6e;&#101;&#120;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;.&#99;&#111;&#x6d;</a><br>
+				<b>Since:</b>
+				0.0.0<br>
+			<b>Located at</b> Log/DatabaseLog.php		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code>__construct( <span>object <var>$settings</var></span> )</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$settings</var></dt>
+						<dd>System log instance settings</dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						Exception<br>
+						<code><a href="class-Phramework.Exceptions.ServerException.html">Phramework\Exceptions\ServerException</a></code>
+					</div>
+
+					<h4>Example</h4>
+					<div class="list">
+							<pre><span class="php-comment">// To use DatabaseLog</span>
+<span class="php-comment">// Set system-log's setting log to 'Phramework\\SystemLog\\APP\\Log\\DatabaseLog'</span>
+<span class="php-comment">// Add database-log object to your system-log settings</span>
+<span class="php-var">$settings</span> = [
+    <span class="php-quote">'system-log'</span> =&gt; (object)[
+        <span class="php-quote">'log'</span> =&gt; <span class="php-quote">'Phramework\\SystemLog\\APP\\Log\\DatabaseLog'</span>,
+        <span class="php-quote">'database-log'</span> =&gt; (object)[
+            <span class="php-quote">'adapter'</span>  =&gt; <span class="php-quote">'Phramework\\Database\\PostgreSQL'</span>,
+            <span class="php-quote">'host'</span>     =&gt; <span class="php-quote">'127.0.0.1'</span>,
+            <span class="php-quote">'name'</span>     =&gt; <span class="php-quote">'db_name'</span>,
+            <span class="php-quote">'password'</span> =&gt; <span class="php-quote">'db_pass'</span>,
+            <span class="php-quote">'username'</span> =&gt; <span class="php-quote">'db_user'</span>,
+            <span class="php-quote">'port'</span>     =&gt; <span class="php-num">5432</span>,
+            <span class="php-quote">'schema'</span>   =&gt; <span class="php-quote">'log'</span>
+        ]
+    ]
+];</pre><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="log" id="_log">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_log">#</a>
+			<code>log( <span>string <var>$step</var></span>, <span>object <var>$data</var></span> )</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$step</var></dt>
+						<dd></dd>
+						<dt><var>$data</var></dt>
+						<dd>Log object</dd>
+					</dl></div>
+
+
+
+					<h4>Todo</h4>
+					<div class="list">
+							surround with try catch<br>
+					</div>
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Phramework.SystemLog.Log.ILog.html#_log">Phramework\SystemLog\Log\ILog::log()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__destruct" id="___destruct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___destruct">#</a>
+			<code>__destruct( )</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="schema" id="$schema">
+			<td class="attributes"><code>
+				protected  
+				null|string
+			</code></td>
+
+			<td class="name">
+<var>$schema</var>
+				<div class="description short">
+					<p>Table's schema, null if default is used</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Table's schema, null if default is used</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$schema" class="anchor">#</a>
+					<code><span class="php-keyword1">null</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="table" id="$table">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+<var>$table</var>
+				<div class="description short">
+					<p>Table's</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Table's</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$table" class="anchor">#</a>
+					<code><span class="php-quote">'system_log'</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="logAdapter" id="$logAdapter">
+			<td class="attributes"><code>
+				protected  
+				Phramework\Phramework\Database\IAdapter
+			</code></td>
+
+			<td class="name">
+<var>$logAdapter</var>
+				<div class="description short">
+					<p>Internal database adapter used to log object to database</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Internal database adapter used to log object to database</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$logAdapter" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		system-log API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>
