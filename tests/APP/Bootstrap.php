@@ -20,9 +20,6 @@ use Phramework\Phramework;
 use Phramework\SystemLog\SystemLog;
 
 /**
- * Log implementation for PHPUnit tests
- * Use setCallback to register a callback and write PHPUnit tests inside.
- *
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
@@ -34,6 +31,7 @@ class Bootstrap
             'debug' => true,
             'system-log' => (object)[
                 'log' => 'Phramework\\SystemLog\\APP\\Log\\PHPUnit',
+                'body_raw_limit' => 1000,
                 'matrix' => [
                     'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET' =>
                               SystemLog::LOG_REQUEST_HEADER_AGENT
@@ -66,8 +64,7 @@ class Bootstrap
                             | SystemLog::LOG_RESPONSE_BODY
                             | SystemLog::LOG_REQUEST_HEADERS,
                     'Phramework\\Exceptions\\NotFoundException' =>
-                              SystemLog::LOG_STANDARD
-                            | SystemLog::LOG_USER_ID
+                              SystemLog::LOG_USER_ID
                             | SystemLog::LOG_REQUEST_BODY_RAW
                             | SystemLog::LOG_RESPONSE_BODY
                 ],

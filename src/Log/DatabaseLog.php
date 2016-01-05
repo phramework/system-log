@@ -51,6 +51,12 @@ class DatabaseLog implements ILog
     protected $schema = null;
 
     /**
+     * Table's
+     * @var string
+     */
+    protected $table = 'system_log';
+
+    /**
      * @param string $step
      * @param array  $data
      *
@@ -63,19 +69,59 @@ class DatabaseLog implements ILog
 
         $data->request_params = json_encode($data->request_params);
 
-        $data->errors = (empty($data->errors)) ? '{}' : json_encode($data->errors);
+        $data->errors = (empty($data->errors)) ? null : json_encode($data->errors);
 
         $data->additional_parameters =
             (empty($data->additional_parameters)) ? '{}' : json_encode($data->additional_parameters);
 
-        $data->response_status_code = (empty($data->response_status_code)) ? '199' : $data->response_status_code;
+        $data->call_trace =
+            (empty($data->call_trace)) ? null : json_encode($data->call_trace);
+
+        //$data->response_status_code = (empty($data->response_status_code)) ? null : $data->response_status_code;
+
 
         //return \Phramework\Database\Operations\Create::create(
         //    (array)$data,
         //    'api_log',
         //    'log_store'
         //);
-        //
+
+
+        $attributes = (
+            is_object($data)
+            ? (array)$data
+            : $data
+        );
+
+        $schema = $this->schema;
+        $table  = $this->table;
+
+        //prepare query
+        $query_keys   = implode('" , "', array_keys($attributes));
+        $query_parameter_string = trim(str_repeat('?,', count($attributes)), ',');
+        $query_values = array_values($attributes);
+
+        $query = 'INSERT INTO ';
+
+        if ($schema !== null) {
+            $query .= sprintf('"%s"."%s"', $schema, $table);
+        } else {
+            $query .= sprintf('"%s"', $table);
+        }
+
+        $query .= sprintf(
+            ' ("%s") VALUES (%s)',
+            $query_keys,
+            $query_parameter_string
+        );
+
+        if ($driver == 'postgresql') {
+            $query .= ' RETURNING id';
+            $id = Database::executeAndFetch($query, $query_values);
+            return $id['id'];
+        }
+
+        return Database::executeLastInsertId($query, $query_values);
     }
 
     /**
@@ -115,6 +161,11 @@ class DatabaseLog implements ILog
         //Check if schema database setting is set
         if (isset($settingsDb->schema)) {
             $this->schema = $settingsDb->schema;
+        }
+
+        //Check if table database setting is set
+        if (isset($settingsDb->table)) {
+            $this->table = $settingsDb->table;
         }
 
         \Phramework\Database\Database::setAdapter($this->logAdapter);

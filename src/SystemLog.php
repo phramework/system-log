@@ -23,9 +23,10 @@ use \Phramework\Extensions\StepCallback;
 /**
  * SystemLog package, used to log requests and exceptions
  * Defined settings:
- * - array system-log
+ * - object system-log
  *   - string log Log implentation class (full class path)
- *   - array  matrix  *[Optional]*
+ *   - integer body_raw_limit *[Optional]* In bytes. default is `1000000`
+ *   - array  matrix *[Optional]*
  *   - array  matrix-exception *[Optional]*
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
@@ -61,6 +62,12 @@ class SystemLog
 
     const LOG_REQUEST_HEADERS = 2097152;
     const LOG_REQUEST_PARAMS  = 4194304;
+
+    /**
+     * See `body_raw_limit` setting, if length of request exceeds tis number then first body_raw_limit
+     * prefixed by `TRIMMED\n` string
+     * @see filter_var with FILTER_SANITIZE_STRING is applied to row body https://secure.php.net/manual/en/function.filter-var.php
+     */
     const LOG_REQUEST_BODY_RAW = 8388608;
 
     const LOG_RESPONSE_HEADER = 281474976710656;
@@ -107,10 +114,25 @@ class SystemLog
                 'Class is not implementing Phramework\SystemLog\Log\ILog'
             );
         }
+
+        if (!isset($settings->body_raw_limit)) {
+            $settings->body_raw_limit = 1000000;
+        }
     }
 
+    /**
+     * Prepare log object
+     * @param  [type] $flags                [description]
+     * @param  [type] $settings             [description]
+     * @param  [type] $params               [description]
+     * @param  [type] $method               [description]
+     * @param  [type] $headers              [description]
+     * @param  [type] $additionalParameters [description]
+     * @return object
+     */
     private static function prepareObject(
         $flags,
+        $settings,
         $params,
         $method,
         $headers,
@@ -143,6 +165,10 @@ class SystemLog
             $user = Phramework::getUser();
             $object->user_id = ($user ? $user->id : false);
         }
+
+        /*
+            Request flags
+         */
 
         if (($flags & self::LOG_REQUEST_HEADERS) !== 0) {
             //Asterisk authorization header value except schema
@@ -198,10 +224,36 @@ class SystemLog
             $object->request_params = $params;
         }
 
-        if (($flags & self::LOG_REQUEST_BODY_RAW) !== 0) {
-            
-            $object->request_body_raw = file_get_contents('php://input');
+        if (true || ($flags & self::LOG_REQUEST_BODY_RAW) !== 0) {
+            //include content type headers if disabled
+            if (($flags & self::LOG_REQUEST_HEADERS) === 0
+                && ($flags & self::LOG_REQUEST_HEADER_CONTENT_TYPE) === 0
+            ) {
+                $contentType = $headers[\Phramework\Models\Request::HEADER_CONTENT_TYPE];
+
+                if (empty($object->request_headers)) {
+                    //make sure it's array
+                    $object->request_headers = [];
+                }
+
+                $object->request_headers[
+                    \Phramework\Models\Request::HEADER_CONTENT_TYPE
+                ] = $contentType;
+            }
+
+            $bodyRaw = file_get_contents('php://input'); //file_get_contents('php://input');
+
+            if (strlen($bodyRaw) > $settings->body_raw_limit) {
+                $bodyRaw = 'TRIMMED' . PHP_EOL . substr($bodyRaw, 0, $settings->body_raw_limit);
+            }
+
+            //Apply FILTER_SANITIZE_STRING
+            $object->request_body_raw = \Phramework\Models\Filter::string($bodyRaw);
         }
+
+        /*
+            Response flags
+         */
 
         if (($flags & self::LOG_RESPONSE_HEADER) !== 0) {
             $object->response_headers = headers_list();
@@ -263,7 +315,8 @@ class SystemLog
             ) use (
                 $logObject,
                 $logMatrix,
-                $additionalParameters
+                $additionalParameters,
+                $settings
             ) {
                 $matrixKey = trim($invokedController, '\\') . '::' . $invokedMethod;
 
@@ -281,6 +334,7 @@ class SystemLog
                 //For common properties
                 $object = SystemLog::prepareObject(
                     $flags,
+                    $settings,
                     $params,
                     $method,
                     $headers,
@@ -308,9 +362,10 @@ class SystemLog
             ) use (
                 $logObject,
                 $logMatrixException,
-                $additionalParameters
+                $additionalParameters,
+                $settings
             ) {
-                $matrixKey = get_class($exception);
+                $matrixKey = trim(get_class($exception), '\\');
 
                 $flags = (
                     isset($logMatrixException[$matrixKey])
@@ -326,6 +381,7 @@ class SystemLog
                 //For common properties
                 $object = SystemLog::prepareObject(
                     $flags,
+                    $settings,
                     $params,
                     $method,
                     $headers,
@@ -337,22 +393,22 @@ class SystemLog
                 $object->exception = serialize($exception);
                 $object->exception_class = $matrixKey;
 
-                $debugBacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                $debugBacktrace = (array)(object)$exception;
 
-                //Remove current log function call
-                //Remove QueryLogAdapter execute* function call
-                //array_splice($debugBacktrace, 0, 4);
+                if (isset($debugBacktrace["\0Exception\0trace"])) {
+                    //Get call trace from exception
+                    $debugBacktrace = $debugBacktrace["\0Exception\0trace"];
 
-                foreach ($debugBacktrace as $k => &$v) {
-                    if (isset($v['class'])) {
-
-                        $v = $v['class'] . '::' . $v['function'];
-                    } else {
-                        $v = $v['function'];
+                    foreach ($debugBacktrace as $k => &$v) {
+                        if (isset($v['class'])) {
+                            $v = $v['class'] . '::' . $v['function'];
+                        } else {
+                            $v = $v['function'];
+                        }
                     }
-                }
 
-                $object->call_trace = $debugBacktrace;
+                    $object->call_trace = $debugBacktrace;
+                }
 
                 return $logObject->log($step, $object);
             }
