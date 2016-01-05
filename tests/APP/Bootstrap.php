@@ -35,22 +35,45 @@ class Bootstrap
             'system-log' => (object)[
                 'log' => 'Phramework\\SystemLog\\APP\\Log\\PHPUnit',
                 'matrix' => [
-                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET' => SystemLog::LOG_REQUEST_HEADER_AGENT
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET' =>
+                              SystemLog::LOG_REQUEST_HEADER_AGENT
                             | SystemLog::LOG_REQUEST_PARAMS
                             | SystemLog::LOG_RESPONSE_BODY
                             | SystemLog::LOG_REQUEST_HEADERS,
-                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GETById' => SystemLog::LOG_REQUEST_PARAMS
-                            | SystemLog::LOG_RESPONSE_BODY,
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GETById' =>
+                              SystemLog::LOG_REQUEST_HEADER_AGENT
+                            | SystemLog::LOG_REQUEST_HEADER_REFERER
+                        //    | SystemLog::LOG_REQUEST_HEADERS
+                            | SystemLog::LOG_REQUEST_PARAMS
+                            | SystemLog::LOG_RESPONSE_BODY
+                            //| SystemLog::LOG_RESPONSE_HEADER
+                            ,
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::POST' =>
+                              SystemLog::LOG_REQUEST_BODY_RAW
                 ],
                 'matrix-exception' => [
-                    'Exception' => SystemLog::LOG_STANDARD,
-                    'Phramework\\Exceptions\\ServerException' => SystemLog::LOG_REQUEST_HEADER_AGENT
+                    'Exception' =>
+                              SystemLog::LOG_STANDARD,
+                    'Phramework\\Exceptions\\ServerException' =>
+                              SystemLog::LOG_REQUEST_HEADER_AGENT
                             | SystemLog::LOG_REQUEST_PARAMS
                             | SystemLog::LOG_RESPONSE_BODY
                             | SystemLog::LOG_REQUEST_HEADERS,
-                    'Phramework\\Exceptions\\NotFoundException' => SystemLog::LOG_STANDARD
-                            | SystemLog::LOG_USER_ID,
+                    'Phramework\\Exceptions\\MissingParametersException' =>
+                              SystemLog::LOG_REQUEST_HEADER_AGENT
+                            | SystemLog::LOG_REQUEST_PARAMS
+                            | SystemLog::LOG_REQUEST_BODY_RAW
+                            | SystemLog::LOG_RESPONSE_BODY
+                            | SystemLog::LOG_REQUEST_HEADERS,
+                    'Phramework\\Exceptions\\NotFoundException' =>
+                              SystemLog::LOG_STANDARD
+                            | SystemLog::LOG_USER_ID
+                            | SystemLog::LOG_REQUEST_BODY_RAW
+                            | SystemLog::LOG_RESPONSE_BODY
                 ],
+                'database-log' => (object)[
+
+                ]
             ],
         ];
 
@@ -77,19 +100,25 @@ class Bootstrap
                     '/',
                     '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'GET',
-                    Phramework::METHOD_ANY,
+                    Phramework::METHOD_GET,
                 ],
                 [
                     '/dummy/',
                     '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'GET',
-                    Phramework::METHOD_ANY,
+                    Phramework::METHOD_GET,
+                ],
+                [
+                    '/dummy/',
+                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
+                    'POST',
+                    Phramework::METHOD_POST,
                 ],
                 [
                     '/dummy/{id}',
                     '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'GETById',
-                    Phramework::METHOD_ANY,
+                    Phramework::METHOD_GET,
                 ],
             ])
         );

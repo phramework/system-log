@@ -34,21 +34,37 @@ class SystemLog
 {
 
     const LOG_STANDARD                = 0;
+    const LOG_EXCEPTION_STANDARD      = 0;
+
     /**
      * Will not store this request to log
      */
     const LOG_IGNORE                  = 1;
     const LOG_USER_ID = 2;
-    const LOG_REQUEST_HEADER_AGENT    = 4;
-    const LOG_REQUEST_HEADER_REFERER  = 8;
 
+    /**
+     * User-Agent
+     */
+    const LOG_REQUEST_HEADER_AGENT    = 65536;
+    /**
+     * Referer
+     */
+    const LOG_REQUEST_HEADER_REFERER  = 131072;
+    /**
+     * Accept
+     */
+    const LOG_REQUEST_HEADER_ACCEPT  = 524288;
+    /**
+     * Accept
+     */
+    const LOG_REQUEST_HEADER_CONTENT_TYPE  = 1048576;
 
+    const LOG_REQUEST_HEADERS = 2097152;
+    const LOG_REQUEST_PARAMS  = 4194304;
+    const LOG_REQUEST_BODY_RAW = 8388608;
 
-    const LOG_REQUEST_HEADERS = 64;
-    const LOG_REQUEST_PARAMS  = 128;
-
-    const LOG_RESPONSE_HEADER = 1024;
-    const LOG_RESPONSE_BODY   = 2048;
+    const LOG_RESPONSE_HEADER = 281474976710656;
+    const LOG_RESPONSE_BODY   = 562949953421312;
 
     /**
      * @var Phramework\SystemLog\Log\ILog
@@ -93,6 +109,125 @@ class SystemLog
         }
     }
 
+    private static function prepareObject(
+        $flags,
+        $params,
+        $method,
+        $headers,
+        $additionalParameters
+    ) {
+        list($URI) = \Phramework\URIStrategy\URITemplate::URI();
+
+        $object = (object)[
+            'request_id' => Phramework::getRequestUUID(),
+            'URI' => $URI,
+            'method' => $method,
+            'user_id' => null,
+            'errors' => null,
+            'request_headers' => null,
+            'request_params' => null,
+            'request_body_raw' => null,
+            'request_timestamp' => $_SERVER['REQUEST_TIME'],
+            'response_headers' => null,
+            'response_body'    => null,
+            'response_timestamp' => time(),
+            'response_status_code' => http_response_code(),
+            'exception' => null,
+            'exception_class' => null,
+            'call_trace' => null,
+            'flags' => $flags,
+            'additional_parameters' => $additionalParameters
+        ];
+
+        if (($flags & self::LOG_USER_ID) !== 0) {
+            $user = Phramework::getUser();
+            $object->user_id = ($user ? $user->id : false);
+        }
+
+        if (($flags & self::LOG_REQUEST_HEADERS) !== 0) {
+            //Asterisk authorization header value except schema
+            if (isset($headers['Authorization'])) {
+                list($authorizationSchema) = sscanf($headers['Authorization'], '%s %s');
+
+                $headers['Authorization'] = $authorizationSchema . ' ***';
+            }
+
+            $object->request_headers = $headers;
+        } else {
+            $request_headers = [];
+
+            if (($flags & self::LOG_REQUEST_HEADER_CONTENT_TYPE) !== 0) {
+                //Write content type
+                $request_headers[\Phramework\Models\Request::HEADER_CONTENT_TYPE] = (
+                    isset($headers[\Phramework\Models\Request::HEADER_CONTENT_TYPE])
+                    ? $headers[\Phramework\Models\Request::HEADER_CONTENT_TYPE]
+                    : null
+                );
+            }
+
+            if (($flags & self::LOG_REQUEST_HEADER_AGENT) !== 0) {
+                $request_headers['User-Agent'] = (
+                    isset($headers['User-Agent'])
+                    ? $headers['User-Agent']
+                    : null
+                );
+            }
+
+            if (($flags & self::LOG_REQUEST_HEADER_REFERER) !== 0) {
+                $request_headers['Referer'] = (
+                    isset($headers['Referer'])
+                    ? $headers['Referer']
+                    : null
+                );
+            }
+
+            if (($flags & self::LOG_REQUEST_HEADER_ACCEPT) !== 0) {
+                $request_headers['Accept'] = (
+                    isset($headers['Accept'])
+                    ? $headers['Accept']
+                    : null
+                );
+            }
+
+            if (!empty($request_headers)) {
+                $object->request_headers = $request_headers;
+            }
+        }
+
+        if (($flags & self::LOG_REQUEST_PARAMS) !== 0) {
+            $object->request_params = $params;
+        }
+
+        if (($flags & self::LOG_REQUEST_BODY_RAW) !== 0) {
+            
+            $object->request_body_raw = file_get_contents('php://input');
+        }
+
+        if (($flags & self::LOG_RESPONSE_HEADER) !== 0) {
+            $object->response_headers = headers_list();
+        }
+
+        if (($flags & self::LOG_RESPONSE_BODY) !== 0) {
+            $object->response_body = ob_get_contents();
+
+            if (($flags & self::LOG_RESPONSE_HEADER) === 0) {
+                //show content type if headers are disabled
+                $headersList = headers_list();
+                $object->response_headers = array_values(array_filter(
+                    $headersList,
+                    function ($h) {
+                        return \Phramework\Models\Util::beginsWith(
+                            $h,
+                            \Phramework\Models\Request::HEADER_CONTENT_TYPE
+                        );
+                    }
+                ));
+            }
+        }
+
+        return $object;
+    }
+
     /**
      * Register callbacks
      * @param null|object $additionalParameters
@@ -130,8 +265,6 @@ class SystemLog
                 $logMatrix,
                 $additionalParameters
             ) {
-                list($URI) = \Phramework\URIStrategy\URITemplate::URI();
-
                 $matrixKey = trim($invokedController, '\\') . '::' . $invokedMethod;
 
                 $flags = (
@@ -145,50 +278,16 @@ class SystemLog
                     return;
                 }
 
-                $object = (object)[
-                    'request_id' => Phramework::getRequestUUID(),
-                    'URI' => $URI,
-                    'method' => $method,
-                    'user_id' => null,
-                    'request_headers' => null,
-                    'request_params' => null,
-                    'request_timestamp' => $_SERVER['REQUEST_TIME'],
-                    'response_headers' => null,
-                    'response_body'    => null,
-                    'response_timestamp' => time(),
-                    'response_status_code' => http_response_code(),
-                    'flags' => $flags, /*Used log flags*/
-                    'additional_parameters' => $additionalParameters,
-                    'errors' => null, /*Used in errors*/
-                    'exception' => null /*Used in errors*/
-                ];
+                //For common properties
+                $object = SystemLog::prepareObject(
+                    $flags,
+                    $params,
+                    $method,
+                    $headers,
+                    $additionalParameters
+                );
 
-                if (($flags & self::LOG_USER_ID) !== 0) {
-                    $user = Phramework::getUser();
-                    $object->user_id = ($user ? $user->id : false);
-                }
-
-                if (($flags & self::LOG_REQUEST_HEADERS) !== 0) {
-                    $object->request_headers = $headers;
-                }
-
-                if (($flags & self::LOG_REQUEST_PARAMS) !== 0) {
-                    $object->request_params = $params;
-                }
-
-                if (($flags & self::LOG_RESPONSE_HEADER) !== 0) {
-                    //$object->response_headers = headers_list();
-                }
-
-                if (($flags & self::LOG_RESPONSE_BODY) !== 0) {
-                    $object->response_body = ob_get_contents();
-
-                    if (($flags & self::LOG_RESPONSE_HEADER) === 0) {
-
-                        //$headers_list = headers_list();
-                        //$object->response_headers = $headers_list;
-                    }
-                }
+                //Write specific
 
                 return $logObject->log($step, $object);
             }
@@ -224,30 +323,36 @@ class SystemLog
                     return;
                 }
 
-                list($URI) = \Phramework\URIStrategy\URITemplate::URI();
+                //For common properties
+                $object = SystemLog::prepareObject(
+                    $flags,
+                    $params,
+                    $method,
+                    $headers,
+                    $additionalParameters
+                );
 
-                $object = (object)[
-                    'request_id' => Phramework::getRequestUUID(),
-                    'URI' => $URI,
-                    'method' => $method,
-                    'user_id' => null,
-                    'errors' => $errors,
-                    'request_headers' => null,
-                    'request_params' => null,
-                    'request_timestamp' => $_SERVER['REQUEST_TIME'],
-                    'response_headers' => null,
-                    'response_body'    => null,
-                    'response_timestamp' => time(),
-                    'response_status_code' => http_response_code(),
-                    'exception' => $matrixKey,
-                    'flags' => $flags,
-                    'additional_parameters' => $additionalParameters
-                ];
+                //Write specific
+                $object->errors = $errors;
+                $object->exception = serialize($exception);
+                $object->exception_class = $matrixKey;
 
-                if (($flags & self::LOG_USER_ID) !== 0) {
-                    $user = Phramework::getUser();
-                    $object->user_id = ($user ? $user->id : false);
+                $debugBacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+                //Remove current log function call
+                //Remove QueryLogAdapter execute* function call
+                //array_splice($debugBacktrace, 0, 4);
+
+                foreach ($debugBacktrace as $k => &$v) {
+                    if (isset($v['class'])) {
+
+                        $v = $v['class'] . '::' . $v['function'];
+                    } else {
+                        $v = $v['function'];
+                    }
                 }
+
+                $object->call_trace = $debugBacktrace;
 
                 return $logObject->log($step, $object);
             }

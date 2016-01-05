@@ -46,6 +46,7 @@
       "find tests/ -name '*.php' -print0 | xargs -0 -L 1 php -l",
       "phpunit"
     ],
+    "run-test-app": "(cd ./tests/APP/; echo \"\nStarting web server at http://localhost:8090 ...\n\"; php -S localhost:8090)",
     "lint": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests"
   }
 }

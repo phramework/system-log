@@ -52,4 +52,9 @@ class DummyController
             ]
         ]);
     }
+
+    public static function POST($params, $method, $headers)
+    {
+        throw new \Phramework\Exceptions\MissingParametersException(['ok']);
+    }
 }
