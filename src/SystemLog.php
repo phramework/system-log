@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+/**
+ * MY namespace
+ */
 namespace Phramework\SystemLog;
 
 use \Phramework\Phramework;
@@ -29,23 +32,51 @@ use \Phramework\Extensions\StepCallback;
  *   <ul>
  *     <li>string  log Log implentation class (full class path)</li>
  *     <li>integer body_raw_limit <i>[Optional]</i> In bytes, default is 1000000</li>
- *     <li>array   matrix <i>[Optional]</i></li>
- *     <li>array   matrix-exception <i>[Optional]</i></li>
+ *     <li>
+ *       array   matrix <i>[Optional]</i> Set log level for each Controller::method.<br/>
+ *       Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields.
+ *     </li>
+ *     <li>
+ *       array   matrix-exception <i>[Optional]</i> Set log level for each exception class.<br/>
+ *       Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields.
+ *     </li>
  *   </ul>
  * </li>
  * </ul>
+ * See [__construct](#___construct) method for an example
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  * @since 0.0.0
+ * @link https://github.com/phramework/system-log Source code
+ * @link https://phramework.github.io/system-log Documentation
  */
 class SystemLog
 {
     /**
      * Default flag for requests
+     * By default will store:
+     * <ul>
+     * <li>request_id</li>
+     * <li>URI</li>
+     * <li>method</li>
+     * <li>ip_address</li>
+     * <li>request_timestamp</li>
+     * <li>response_timestamp</li>
+     * <li>response_status_code</li>
+     * <li>flags</li>
+     * <li>additional_parameters</li>
+     * </ul>
      */
     const LOG_STANDARD                = 0;
     /**
      * Default flag for exceptions
+     * In addition to fields described in **`LOG_STANDARD`**, exceptions will store:
+     * <ul>
+     * <li>exception</li>
+     * <li>exception_class</li>
+     * <li>errors</li>
+     * <li>call_trace</li>
+     * </ul>
      */
     const LOG_EXCEPTION_STANDARD      = 0;
     /**
@@ -53,50 +84,59 @@ class SystemLog
      */
     const LOG_IGNORE                  = 1;
     /**
-     * Will log user's id if request is authenticated
+     * Will log user's id if request is authenticated, if not false will be written.
+     * Stored as string `user_id`
      */
     const LOG_USER_ID = 2;
     /**
-     * `User-Agent` header
+     * Enables log of `User-Agent` header.
+     * Stored as array item in `request_headers`
      */
     const LOG_REQUEST_HEADER_AGENT    = 65536;
     /**
-     * `Referer` header
+     * Enables log of `Referer` header.
+     * Stored as array item in `request_headers`
      */
     const LOG_REQUEST_HEADER_REFERER  = 131072;
     /**
-     * `Accept` header
+     * Enables log of `Accept` header.
+     * Stored as array item in `request_headers`
      */
     const LOG_REQUEST_HEADER_ACCEPT  = 524288;
     /**
-     * `Content-Type` header
+     * Enables log of `Content-Type` header.
+     * Stored as array item in `request_headers`
      */
     const LOG_REQUEST_HEADER_CONTENT_TYPE  = 1048576;
     /**
-     * Will log all request headers
+     * Enables log of all request headers.
+     * Stored as array item in `request_headers`
      */
     const LOG_REQUEST_HEADERS = 2097152;
     /**
-     * Will log parsed request parameters
+     * Enables log of parsed request parameters.
+     * Stored as object `request_params`
      */
     const LOG_REQUEST_PARAMS  = 4194304;
-
     /**
-     * Will log raw request body<br/>
+     * Enables log of raw request body if any.<br/>
+     * Stored as string `request_body_raw` <br/>
      * See `body_raw_limit` setting, if length of request exceeds tis number
      * then first `body_raw_limit` characters, prefixed by `TRIMMED\n` string
      * will be used.
-     * @see filter_var with FILTER_SANITIZE_STRING is applied to raw body
-     * https://secure.php.net/manual/en/function.filter-var.php
+     * @uses https://secure.php.net/manual/en/function.filter-var.php filter_var
+     * with FILTER_SANITIZE_STRING is applied to raw body
      */
     const LOG_REQUEST_BODY_RAW = 8388608;
     /**
-     * Will log response headers
+     * Enables log of response headers.
+     * Stored as array `response_headers`
      */
     const LOG_RESPONSE_HEADER = 281474976710656;
     /**
-     * Will log response body.
-     * *NOTE* if LOG_RESPONSE_HEADER is turned off, still the `Content-Type`
+     * Enables log of response body.
+     * Stored as string `response_body` <br/>
+     * *NOTE* if **`LOG_RESPONSE_HEADER`** is turned off, still the `Content-Type`
      * response header will be written to response_headers.
      */
     const LOG_RESPONSE_BODY   = 562949953421312;
@@ -121,7 +161,8 @@ class SystemLog
      * @param object $settings Settings object to initialize a system log instance
      * @example
      * ```php
-     * //Inside your index.php file
+     * //Your index.php file
+     *
      * include __DIR__ . '/../../vendor/autoload.php';
      *
      * use \Phramework\Phramework;
@@ -130,29 +171,38 @@ class SystemLog
      * //Global phramework settings
      * $settings = [
      *     'system-log' => (object)[
-     *       'log' => 'Phramework\\SystemLog\\APP\\Log\\TerminalLog',
-     *       'body_raw_limit' => 1000,
-     *       'matrix' => [
-     *           'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET' =>
-     *                 SystemLog::LOG_REQUEST_HEADER_AGENT
-     *               | SystemLog::LOG_REQUEST_PARAMS
-     *       ]
-     *       'matrix-exception' => [
-     *           'Exception' =>
-     *                 SystemLog::LOG_STANDARD,
-     *           'Phramework\\Exceptions\\ServerException' =>
-     *                 SystemLog::LOG_REQUEST_HEADER_AGENT
-     *               | SystemLog::LOG_REQUEST_PARAMS
-     *       ]
-     *   ]
+     *         'log' => 'Phramework\\SystemLog\\Log\\TerminalLog',
+     *         'body_raw_limit' => 1000,
+     *         'matrix' => [
+     *             'MyNamespace\\Controllers\\DummyController::GET' =>
+     *                   SystemLog::LOG_REQUEST_HEADER_AGENT
+     *                 | SystemLog::LOG_REQUEST_PARAMS
+     *             ,
+     *             'MyNamespace\\Controllers\\DummyController::POST' =>
+     *                   SystemLog::LOG_REQUEST_HEADERS
+     *                 | SystemLog::LOG_REQUEST_PARAMS
+     *                 | SystemLog::LOG_REQUEST_BODY_RAW
+     *         ]
+     *         'matrix-exception' => [
+     *             'Exception' =>
+     *                   SystemLog::LOG_STANDARD,
+     *             'Phramework\\Exceptions\\ServerException' =>
+     *                   SystemLog::LOG_REQUEST_HEADER_AGENT
+     *                 | SystemLog::LOG_REQUEST_PARAMS
+     *         ]
+     *     ]
      * ];
+     *
+     * //Prepare your $URIStrategy here
+     *
      * //Initialize phramework
      * $phramework = new Phramework(
-     *     self::getSettings(),
+     *     $settings,
      *     $URIStrategy
      * );
      *
      * //Initialize a system log instance and register it
+     * //before calling phramework's invoke method
      * $systemLog = new SystemLog($settings['system-log']);
      * $systemLog->register((object)[
      *     'server' => 'my server'
@@ -356,20 +406,20 @@ class SystemLog
             'URI' => $URI,
             'method' => $HTTPMethod,
             'user_id' => null,
-            'errors' => null,
+            'ip_address' => \Phramework\Models\Util::getIPAddress(),
             'request_headers' => null,
             'request_params' => null,
             'request_body_raw' => null,
             'request_timestamp' => $_SERVER['REQUEST_TIME'],
-            'ip_address' => \Phramework\Models\Util::getIPAddress(),
+            'response_timestamp' => time(),
             'response_headers' => null,
             'response_body'    => null,
-            'response_timestamp' => time(),
             'response_status_code' => http_response_code(),
             'exception' => null,
             'exception_class' => null,
+            'errors' => null,
             'call_trace' => null,
-            'flags' => $flags,
+            'flags' => $flags, //matrix flags
             'additional_parameters' => $additionalParameters
         ];
 

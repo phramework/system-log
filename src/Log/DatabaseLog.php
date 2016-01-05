@@ -76,10 +76,9 @@ class DatabaseLog implements ILog
      * @throws ServerException
      * @example
      * ```php
-     * /* To use DatabaseLog
-     *  * Set system-log's log to 'Phramework\\SystemLog\\APP\\Log\\DatabaseLog'
-     *  * Add database-log objecto to your settings
-     *  *\/
+     * // To use DatabaseLog
+     * // Set system-log's setting log to 'Phramework\\SystemLog\\APP\\Log\\DatabaseLog'
+     * // Add database-log object to your system-log settings
      * $settings = [
      *     'system-log' => (object)[
      *         'log' => 'Phramework\\SystemLog\\APP\\Log\\DatabaseLog',
