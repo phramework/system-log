@@ -41,12 +41,16 @@
     ]
   },
   "scripts": {
+    "doc": [
+      "apigen generate -s ./src,./vendor/phramework/exceptions/src -d ./doc --template-theme bootstrap --todo --tree --deprecated --no-source-code --title \"system-log\"",
+      "start=\"file://\";end=\"doc/index.html\"; echo \"\nOpen $start$(pwd)/$end\" in browser..."
+    ],
     "test": [
       "find src/ -name '*.php' -print0 | xargs -0 -L 1 php -l",
       "find tests/ -name '*.php' -print0 | xargs -0 -L 1 php -l",
       "phpunit"
     ],
-    "run-test-app": "(cd ./tests/APP/; echo \"\nStarting web server at http://localhost:8090 ...\n\"; php -S localhost:8090)",
+    "run-test-app": "./tools/run-test-APP",
     "lint": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests"
   }
 }

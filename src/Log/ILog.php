@@ -20,11 +20,16 @@ namespace Phramework\SystemLog\Log;
 use \Phramework\Phramework;
 
 /**
- * Log interface
+ * Log storage implemtation interface
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
+ * @since 0.0.0
  */
 interface ILog
 {
+    /**
+     * @param string $step
+     * @param object $data Log object
+     */
     public function log($step, $data);
 }

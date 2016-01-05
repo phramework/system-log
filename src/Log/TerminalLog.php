@@ -23,19 +23,26 @@ use \Phramework\Phramework;
  * Log implementation using terminal to display log messages
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
+ * @since 0.0.0
  */
 class TerminalLog implements ILog
 {
-
+    /**
+     * Uses stderr to output log
+     * @param string $step
+     * @param object $data Log object
+     */
     public function log($step, $data)
     {
-        echo PHP_EOL . $step . PHP_EOL;
-        echo json_encode($data, JSON_PRETTY_PRINT) . PHP_EOL;
+        ob_start();
+        $f = fopen('php://stderr', 'w');
+        fputs($f, json_encode($data, JSON_PRETTY_PRINT) . PHP_EOL);
+        ob_get_contents();
+        ob_end_clean();
     }
 
     /**
-     * @param array $settings Phramework settings
-     * @throws \Phramework\Exceptions\ServerException
+     * @param object $settings System log instance settings
      */
     public function __construct($settings)
     {

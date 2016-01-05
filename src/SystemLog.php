@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2015 Xenofon Spafaridis
+ * Copyright 2015 - 2016 Xenofon Spafaridis
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,70 +22,145 @@ use \Phramework\Extensions\StepCallback;
 
 /**
  * SystemLog package, used to log requests and exceptions
- * Defined settings:
- * - object system-log
- *   - string log Log implentation class (full class path)
- *   - integer body_raw_limit *[Optional]* In bytes. default is `1000000`
- *   - array  matrix *[Optional]*
- *   - array  matrix-exception *[Optional]*
+ * Defined settings: <br/>
+ * <ul>
+ * <li>
+ *   object system-log
+ *   <ul>
+ *     <li>string  log Log implentation class (full class path)</li>
+ *     <li>integer body_raw_limit <i>[Optional]</i> In bytes, default is 1000000</li>
+ *     <li>array   matrix <i>[Optional]</i></li>
+ *     <li>array   matrix-exception <i>[Optional]</i></li>
+ *   </ul>
+ * </li>
+ * </ul>
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
+ * @since 0.0.0
  */
 class SystemLog
 {
-
-    const LOG_STANDARD                = 0;
-    const LOG_EXCEPTION_STANDARD      = 0;
-
     /**
-     * Will not store this request to log
+     * Default flag for requests
+     */
+    const LOG_STANDARD                = 0;
+    /**
+     * Default flag for exceptions
+     */
+    const LOG_EXCEPTION_STANDARD      = 0;
+    /**
+     * Will ignore this request from system log
      */
     const LOG_IGNORE                  = 1;
-    const LOG_USER_ID = 2;
-
     /**
-     * User-Agent
+     * Will log user's id if request is authenticated
+     */
+    const LOG_USER_ID = 2;
+    /**
+     * `User-Agent` header
      */
     const LOG_REQUEST_HEADER_AGENT    = 65536;
     /**
-     * Referer
+     * `Referer` header
      */
     const LOG_REQUEST_HEADER_REFERER  = 131072;
     /**
-     * Accept
+     * `Accept` header
      */
     const LOG_REQUEST_HEADER_ACCEPT  = 524288;
     /**
-     * Accept
+     * `Content-Type` header
      */
     const LOG_REQUEST_HEADER_CONTENT_TYPE  = 1048576;
-
+    /**
+     * Will log all request headers
+     */
     const LOG_REQUEST_HEADERS = 2097152;
+    /**
+     * Will log parsed request parameters
+     */
     const LOG_REQUEST_PARAMS  = 4194304;
 
     /**
-     * See `body_raw_limit` setting, if length of request exceeds tis number then first body_raw_limit
-     * prefixed by `TRIMMED\n` string
-     * @see filter_var with FILTER_SANITIZE_STRING is applied to row body https://secure.php.net/manual/en/function.filter-var.php
+     * Will log raw request body<br/>
+     * See `body_raw_limit` setting, if length of request exceeds tis number
+     * then first `body_raw_limit` characters, prefixed by `TRIMMED\n` string
+     * will be used.
+     * @see filter_var with FILTER_SANITIZE_STRING is applied to raw body
+     * https://secure.php.net/manual/en/function.filter-var.php
      */
     const LOG_REQUEST_BODY_RAW = 8388608;
-
+    /**
+     * Will log response headers
+     */
     const LOG_RESPONSE_HEADER = 281474976710656;
+    /**
+     * Will log response body.
+     * *NOTE* if LOG_RESPONSE_HEADER is turned off, still the `Content-Type`
+     * response header will be written to response_headers.
+     */
     const LOG_RESPONSE_BODY   = 562949953421312;
 
     /**
+     * Log storage implentation
      * @var Phramework\SystemLog\Log\ILog
      */
     protected $logObject;
 
     /**
-     * @var array
+     * System log instance settings
+     * @var object
      */
     protected $settings;
 
     /**
-     * Create new system log
-     * @param object $settings
+     * Create new system log instance
+     * Use register method to register the instance to phramework. <br/>
+     * **NOTE** that multiple system log instances can be created, this is
+     * useful when different log levels for separate system reports are needed.
+     * @param object $settings Settings object to initialize a system log instance
+     * @example
+     * ```php
+     * //Inside your index.php file
+     * include __DIR__ . '/../../vendor/autoload.php';
+     *
+     * use \Phramework\Phramework;
+     * use \Phramework\SystemLog\SystemLog;
+     *
+     * //Global phramework settings
+     * $settings = [
+     *     'system-log' => (object)[
+     *       'log' => 'Phramework\\SystemLog\\APP\\Log\\TerminalLog',
+     *       'body_raw_limit' => 1000,
+     *       'matrix' => [
+     *           'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET' =>
+     *                 SystemLog::LOG_REQUEST_HEADER_AGENT
+     *               | SystemLog::LOG_REQUEST_PARAMS
+     *       ]
+     *       'matrix-exception' => [
+     *           'Exception' =>
+     *                 SystemLog::LOG_STANDARD,
+     *           'Phramework\\Exceptions\\ServerException' =>
+     *                 SystemLog::LOG_REQUEST_HEADER_AGENT
+     *               | SystemLog::LOG_REQUEST_PARAMS
+     *       ]
+     *   ]
+     * ];
+     * //Initialize phramework
+     * $phramework = new Phramework(
+     *     self::getSettings(),
+     *     $URIStrategy
+     * );
+     *
+     * //Initialize a system log instance and register it
+     * $systemLog = new SystemLog($settings['system-log']);
+     * $systemLog->register((object)[
+     *     'server' => 'my server'
+     * ]);
+     *
+     * //Invoke phramework
+     * $phramework->invoke();
+     * ```
      */
     public function __construct($settings)
     {
@@ -121,20 +196,156 @@ class SystemLog
     }
 
     /**
+     * Register system log instance to phramework
+     * @param null|object $additionalParameters
+     * @throws Exception
+     */
+    public function register($additionalParameters = null)
+    {
+        if ($additionalParameters && !is_object($additionalParameters)) {
+            throw new \Exception('additionalParameters must be an object');
+        }
+
+        $settings = $this->settings;
+
+        $logMatrix          = (array)$settings->matrix;
+        $logMatrixException = (array)$settings->{'matrix-exception'};
+
+        $logObject = $this->logObject;
+
+        /*
+         * Register step callbacks
+         */
+
+        //Register after call URIStrategy (after controller/method is invoked) callback
+        Phramework::$stepCallback->add(
+            StepCallback::STEP_AFTER_CALL_URISTRATEGY,
+            function (
+                $step,
+                $params,
+                $HTTPMethod /*HTTP method */,
+                $headers,
+                $callbackVariables,
+                $invokedController,
+                $invokedMethod //Class method
+            ) use (
+                $logObject,
+                $logMatrix,
+                $additionalParameters,
+                $settings
+            ) {
+                $matrixKey = trim($invokedController, '\\') . '::' . $invokedMethod;
+
+                $flags = (
+                    isset($logMatrix[$matrixKey])
+                    ? $logMatrix[$matrixKey]
+                    : self::LOG_STANDARD
+                );
+
+                //If ignore flag is active, dont store anything
+                if (($flags & self::LOG_IGNORE) !== 0) {
+                    return;
+                }
+
+                //For common properties
+                $object = SystemLog::prepareObject(
+                    $flags,
+                    $settings,
+                    $params,
+                    $HTTPMethod,
+                    $headers,
+                    $additionalParameters
+                );
+
+                //Write specific
+
+                return $logObject->log($step, $object);
+            }
+        );
+
+        //Register on error callback
+        Phramework::$stepCallback->add(
+            StepCallback::STEP_ERROR,
+            function (
+                $step,
+                $params,
+                $HTTPMethod,
+                $headers,
+                $callbackVariables,
+                $errors,
+                $code,
+                $exception
+            ) use (
+                $logObject,
+                $logMatrixException,
+                $additionalParameters,
+                $settings
+            ) {
+                $matrixKey = trim(get_class($exception), '\\');
+
+                $flags = (
+                    isset($logMatrixException[$matrixKey])
+                    ? $logMatrixException[$matrixKey]
+                    : self::LOG_STANDARD
+                );
+
+                //If ignore flag is active, dont store anything
+                if (($flags & self::LOG_IGNORE) !== 0) {
+                    return;
+                }
+
+                //For common properties
+                $object = SystemLog::prepareObject(
+                    $flags,
+                    $settings,
+                    $params,
+                    $HTTPMethod,
+                    $headers,
+                    $additionalParameters
+                );
+
+                //Write specific
+                $object->errors = $errors;
+                $object->exception = serialize($exception);
+                $object->exception_class = $matrixKey;
+
+                $debugBacktrace = (array)(object)$exception;
+
+                if (isset($debugBacktrace["\0Exception\0trace"])) {
+                    //Get call trace from exception
+                    $debugBacktrace = $debugBacktrace["\0Exception\0trace"];
+
+                    foreach ($debugBacktrace as $k => &$v) {
+                        if (isset($v['class'])) {
+                            $v = $v['class'] . '::' . $v['function'];
+                        } else {
+                            $v = $v['function'];
+                        }
+                    }
+
+                    $object->call_trace = $debugBacktrace;
+                }
+
+                return $logObject->log($step, $object);
+            }
+        );
+    }
+
+    /**
      * Prepare log object
-     * @param  [type] $flags                [description]
-     * @param  [type] $settings             [description]
-     * @param  [type] $params               [description]
-     * @param  [type] $method               [description]
-     * @param  [type] $headers              [description]
-     * @param  [type] $additionalParameters [description]
+     * @param  integer     $flags
+     * @param  object      $settings
+     * @param  object      $params
+     * @param  string      $HTTPMethod
+     * @param  array       $headers
+     * @param  object|null $additionalParameters
      * @return object
      */
     private static function prepareObject(
         $flags,
         $settings,
         $params,
-        $method,
+        $HTTPMethod,
         $headers,
         $additionalParameters
     ) {
@@ -143,13 +354,14 @@ class SystemLog
         $object = (object)[
             'request_id' => Phramework::getRequestUUID(),
             'URI' => $URI,
-            'method' => $method,
+            'method' => $HTTPMethod,
             'user_id' => null,
             'errors' => null,
             'request_headers' => null,
             'request_params' => null,
             'request_body_raw' => null,
             'request_timestamp' => $_SERVER['REQUEST_TIME'],
+            'ip_address' => \Phramework\Models\Util::getIPAddress(),
             'response_headers' => null,
             'response_body'    => null,
             'response_timestamp' => time(),
@@ -225,11 +437,27 @@ class SystemLog
         }
 
         if (true || ($flags & self::LOG_REQUEST_BODY_RAW) !== 0) {
+
+
+            $bodyRaw = file_get_contents('php://input'); //file_get_contents('php://input');
+
+            if (strlen($bodyRaw) > $settings->body_raw_limit) {
+                $bodyRaw = 'TRIMMED' . PHP_EOL . substr($bodyRaw, 0, $settings->body_raw_limit);
+            }
+
+            //Apply FILTER_SANITIZE_STRING
+            $object->request_body_raw = \Phramework\Models\Filter::string($bodyRaw);
+
             //include content type headers if disabled
-            if (($flags & self::LOG_REQUEST_HEADERS) === 0
+            if (!empty($bodyRaw)
+                && ($flags & self::LOG_REQUEST_HEADERS) === 0
                 && ($flags & self::LOG_REQUEST_HEADER_CONTENT_TYPE) === 0
             ) {
-                $contentType = $headers[\Phramework\Models\Request::HEADER_CONTENT_TYPE];
+                $contentType = (
+                    isset($headers[\Phramework\Models\Request::HEADER_CONTENT_TYPE])
+                    ? $headers[\Phramework\Models\Request::HEADER_CONTENT_TYPE]
+                    : null
+                );
 
                 if (empty($object->request_headers)) {
                     //make sure it's array
@@ -240,15 +468,14 @@ class SystemLog
                     \Phramework\Models\Request::HEADER_CONTENT_TYPE
                 ] = $contentType;
             }
+        }
 
-            $bodyRaw = file_get_contents('php://input'); //file_get_contents('php://input');
+        $responseHeaders = new \stdClass();
 
-            if (strlen($bodyRaw) > $settings->body_raw_limit) {
-                $bodyRaw = 'TRIMMED' . PHP_EOL . substr($bodyRaw, 0, $settings->body_raw_limit);
-            }
+        foreach (headers_list() as $header) {
+            list($key, $value) = explode(': ', $header);
 
-            //Apply FILTER_SANITIZE_STRING
-            $object->request_body_raw = \Phramework\Models\Filter::string($bodyRaw);
+            $responseHeaders->{$key} = $value;
         }
 
         /*
@@ -256,7 +483,7 @@ class SystemLog
          */
 
         if (($flags & self::LOG_RESPONSE_HEADER) !== 0) {
-            $object->response_headers = headers_list();
+            $object->response_headers = $responseHeaders;
         }
 
         if (($flags & self::LOG_RESPONSE_BODY) !== 0) {
@@ -264,154 +491,22 @@ class SystemLog
 
             if (($flags & self::LOG_RESPONSE_HEADER) === 0) {
                 //show content type if headers are disabled
-                $headersList = headers_list();
-                $object->response_headers = array_values(array_filter(
-                    $headersList,
-                    function ($h) {
-                        return \Phramework\Models\Util::beginsWith(
-                            $h,
-                            \Phramework\Models\Request::HEADER_CONTENT_TYPE
-                        );
-                    }
-                ));
+                $object->response_headers = (object)[
+                    \Phramework\Models\Request::HEADER_CONTENT_TYPE
+                    => (
+                        isset($responseHeaders->{\Phramework\Models\Request::HEADER_CONTENT_TYPE})
+                        ? $responseHeaders->{\Phramework\Models\Request::HEADER_CONTENT_TYPE}
+                        : null
+                    )
+                ];
             }
+        }
+
+        //If response headers are set, convert them to object
+        if (!empty($object->response_headers)) {
+
         }
 
         return $object;
-    }
-
-    /**
-     * Register callbacks
-     * @param null|object $additionalParameters
-     */
-    public function register($additionalParameters = null)
-    {
-        if ($additionalParameters && !is_object($additionalParameters)) {
-            throw new \Exception('additionalParameters must be an object');
-        }
-
-        $settings = $this->settings;
-
-        $logMatrix          = (array)$settings->matrix;
-        $logMatrixException = (array)$settings->{'matrix-exception'};
-
-        $logObject = $this->logObject;
-
-        /*
-         * Register step callbacks
-         */
-
-        //Register after call URIStrategy (after controller/method is invoked) callback
-        Phramework::$stepCallback->add(
-            StepCallback::STEP_AFTER_CALL_URISTRATEGY,
-            function (
-                $step,
-                $params,
-                $method /*HTTP method */,
-                $headers,
-                $callbackVariables,
-                $invokedController,
-                $invokedMethod //Class method
-            ) use (
-                $logObject,
-                $logMatrix,
-                $additionalParameters,
-                $settings
-            ) {
-                $matrixKey = trim($invokedController, '\\') . '::' . $invokedMethod;
-
-                $flags = (
-                    isset($logMatrix[$matrixKey])
-                    ? $logMatrix[$matrixKey]
-                    : self::LOG_STANDARD
-                );
-
-                //If ignore flag is active, dont store anything
-                if (($flags & self::LOG_IGNORE) !== 0) {
-                    return;
-                }
-
-                //For common properties
-                $object = SystemLog::prepareObject(
-                    $flags,
-                    $settings,
-                    $params,
-                    $method,
-                    $headers,
-                    $additionalParameters
-                );
-
-                //Write specific
-
-                return $logObject->log($step, $object);
-            }
-        );
-
-        //Register on error callback
-        Phramework::$stepCallback->add(
-            StepCallback::STEP_ERROR,
-            function (
-                $step,
-                $params,
-                $method,
-                $headers,
-                $callbackVariables,
-                $errors,
-                $code,
-                $exception
-            ) use (
-                $logObject,
-                $logMatrixException,
-                $additionalParameters,
-                $settings
-            ) {
-                $matrixKey = trim(get_class($exception), '\\');
-
-                $flags = (
-                    isset($logMatrixException[$matrixKey])
-                    ? $logMatrixException[$matrixKey]
-                    : self::LOG_STANDARD
-                );
-
-                //If ignore flag is active, dont store anything
-                if (($flags & self::LOG_IGNORE) !== 0) {
-                    return;
-                }
-
-                //For common properties
-                $object = SystemLog::prepareObject(
-                    $flags,
-                    $settings,
-                    $params,
-                    $method,
-                    $headers,
-                    $additionalParameters
-                );
-
-                //Write specific
-                $object->errors = $errors;
-                $object->exception = serialize($exception);
-                $object->exception_class = $matrixKey;
-
-                $debugBacktrace = (array)(object)$exception;
-
-                if (isset($debugBacktrace["\0Exception\0trace"])) {
-                    //Get call trace from exception
-                    $debugBacktrace = $debugBacktrace["\0Exception\0trace"];
-
-                    foreach ($debugBacktrace as $k => &$v) {
-                        if (isset($v['class'])) {
-                            $v = $v['class'] . '::' . $v['function'];
-                        } else {
-                            $v = $v['function'];
-                        }
-                    }
-
-                    $object->call_trace = $debugBacktrace;
-                }
-
-                return $logObject->log($step, $object);
-            }
-        );
     }
 }

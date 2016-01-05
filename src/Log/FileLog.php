@@ -18,39 +18,50 @@
 namespace Phramework\SystemLog\Log;
 
 use \Phramework\Phramework;
+use \Phramework\Exceptions\ServerException;
 
 /**
- * Log implementation using files as store method
- * Defined settings:
- * - system-log[]
- *   - file-log[]
- *     - path File path to store log
+ * Log implementation using file as storage method
+ * Defined settings: <br/>
+ * <ul>
+ * <li>
+ *   object system-log[]
+ *   <ul>
+ *     <li>
+ *       object file-log[]
+ *       <ul>
+ *         <li>string path File path to store log</li>
+ *       </ul>
+ *     </li>
+ *   </ul>
+ * </li>
+ * </ul>
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
+ * @since 0.0.0
  */
 class FileLog implements ILog
 {
+    /**
+     * Log file's path
+     * @var string
+     */
     protected $path;
 
-    public function log($step, $data)
-    {
-        file_put_contents($this->path, json_encode($data), FILE_APPEND);
-    }
-
     /**
-     * @param object $settings Phramework settings
-     * @throws \Phramework\Exceptions\ServerException
+     * @param object $settings System log instance settings
+     * @throws ServerException
      */
     public function __construct($settings)
     {
         if (!isset($settings->{'file-log'})) {
-            throw new \Phramework\Exceptions\ServerException(
+            throw new ServerException(
                 'Setting system-log.file-log is not set'
             );
         }
 
         if (!isset($settings->{'file-log'}->path)) {
-            throw new \Phramework\Exceptions\ServerException(
+            throw new ServerException(
                 'Setting system-log.file-log.path is not set'
             );
         }
@@ -58,10 +69,19 @@ class FileLog implements ILog
         $this->path = $settings->{'file-log'}->path;
 
         if (!is_writable($this->path)) {
-            throw new \Phramework\Exceptions\ServerException(sprintf(
+            throw new ServerException(sprintf(
                 'File "%s" is not writeble',
                 $this->path
             ));
         }
+    }
+
+    /**
+     * @param string $step
+     * @param object $data Log object
+     */
+    public function log($step, $data)
+    {
+        file_put_contents($this->path, json_encode($data) . PHP_EOL, FILE_APPEND);
     }
 }
