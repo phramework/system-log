@@ -167,16 +167,22 @@ class DatabaseLog implements ILog
             : json_encode($data->additional_parameters)
         );
 
-        $data->call_trace =(
+        $data->call_trace = (
             empty($data->call_trace)
             ? null
             : json_encode($data->call_trace)
         );
 
-        $data->response_status_code =  (
+        $data->response_status_code = (
             empty($data->response_status_code)
             ? null
             : $data->response_status_code
+        );
+
+        $data->response_headers = (
+            empty($data->response_headers)
+            ? null
+            : json_encode($data->response_headers)
         );
 
         //Insert log object to database

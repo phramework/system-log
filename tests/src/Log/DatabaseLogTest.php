@@ -16,6 +16,7 @@
  */
 namespace Phramework\SystemLog\Log;
 
+use Phramework\Phramework;
 use Phramework\SystemLog\SystemLog;
 
 /**
@@ -56,6 +57,10 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
      */
     public function testLog()
     {
+        //Force URI route
+        $_SERVER['REQUEST_URI'] = '/dummy/1';
+        $_SERVER['REQUEST_METHOD'] = Phramework::METHOD_GET;
+
         $this->systemLog->register();
         $this->phramework->invoke();
     }
