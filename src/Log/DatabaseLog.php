@@ -137,6 +137,7 @@ class DatabaseLog implements ILog
      * @param object $data Log object
      *
      * @todo surround with try catch
+     * @return string Returns the id of inserted record
      */
     public function log($step, $data)
     {
@@ -186,9 +187,9 @@ class DatabaseLog implements ILog
         $table  = $this->table;
 
         //prepare query
-        $query_keys   = implode('" , "', array_keys($attributes));
-        $query_parameter_string = trim(str_repeat('?,', count($attributes)), ',');
-        $query_values = array_values($attributes);
+        $queryKeys   = implode('" , "', array_keys($attributes));
+        $queryParameterString = trim(str_repeat('?,', count($attributes)), ',');
+        $queryValues = array_values($attributes);
 
         $query = 'INSERT INTO ';
 
@@ -200,17 +201,17 @@ class DatabaseLog implements ILog
 
         $query .= sprintf(
             ' ("%s") VALUES (%s)',
-            $query_keys,
-            $query_parameter_string
+            $queryKeys,
+            $queryParameterString
         );
 
-        if ($driver == 'postgresql') {
+        if ($this->logAdapter->getAdapterName() == 'postgresql') {
             $query .= ' RETURNING id';
-            $id = $this->logAdapter->executeAndFetch($query, $query_values);
+            $id = $this->logAdapter->executeAndFetch($query, $queryValues);
             return $id['id'];
         }
 
-        return $this->logAdapter->executeLastInsertId($query, $query_values);
+        return $this->logAdapter->executeLastInsertId($query, $queryValues);
     }
 
     public function __destruct()

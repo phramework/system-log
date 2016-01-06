@@ -19,6 +19,7 @@ namespace Phramework\SystemLog;
 
 use \Phramework\Phramework;
 use \Phramework\Extensions\StepCallback;
+use \Phramework\SystemLog\APP\Bootstrap;
 
 /**
 * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
@@ -72,12 +73,14 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         //Prepare phramework instance
-        $this->phramework = \Phramework\SystemLog\APP\Bootstrap::prepare();
+        $this->phramework = Bootstrap::prepare();
 
-        $settings = \Phramework\SystemLog\APP\Bootstrap::getSettings();
+        $settings = Bootstrap::getSettings();
 
         //Create SystemLog object
         $this->systemLog = new SystemLog($settings['system-log']);
+
+        \Phramework\SystemLog\APP\Log\PHPUnit::setDisplayOutput(true);
     }
 
     /**
@@ -100,11 +103,11 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
         //Force URI route
         $_SERVER['REQUEST_URI'] = '/dummy/1/';
 
-        $additional_parameters = (object)[
+        $additionalParameters = (object)[
             'API' => 'phpunit'
         ];
 
-        $this->systemLog->register($additional_parameters);
+        $this->systemLog->register($additionalParameters);
 
         $that = $this;
 
@@ -178,7 +181,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertSame(
-            $additional_parameters->API,
+            $additionalParameters->API,
             $this->object->additional_parameters->API,
             'Check if value of additional_parameters "API" is set correctly'
         );
@@ -188,6 +191,29 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
         //    $this->object->response_status_code,
         //    'Status code MUST be 200, since we dont expect any exception'
         //);
+    }
+
+    /**
+     * @covers Phramework\SystemLog\SystemLog::register
+     */
+    public function testRegisterOnIgnoreFlag()
+    {
+        $this->setUp();
+
+        //Force URI route
+        $_SERVER['REQUEST_URI'] = '/dummy/1';
+        $_SERVER['REQUEST_METHOD'] = Phramework::METHOD_PUT;
+
+        $additionalParameters = (object)[
+            'API' => 'phpunit'
+        ];
+
+        $this->systemLog->register($additionalParameters);
+
+        $that = $this;
+
+        //Invoke phramework (start test)
+        $this->phramework->invoke();
     }
 
     /**
@@ -201,11 +227,11 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
         //Force URI route
         $_SERVER['REQUEST_URI'] = '/not_found/';
 
-        $additional_parameters = (object)[
+        $additionalParameters = (object)[
             'API' => 'phpunit'
         ];
 
-        $this->systemLog->register($additional_parameters);
+        $this->systemLog->register($additionalParameters);
 
         $that = $this;
 
@@ -279,7 +305,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertSame(
-            $additional_parameters->API,
+            $additionalParameters->API,
             $this->object->additional_parameters->API,
             'Check if value of additional_parameters "API" is set correctly'
         );
@@ -289,5 +315,79 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
         //    $this->object->response_status_code,
         //    'Status code MUST be 404, since we expect exception, caused by NotFoundException'
         //);
+    }
+
+    /**
+     * @covers Phramework\SystemLog\SystemLog::register
+     * @expectedException Exception
+     */
+    public function testRegisterFailure()
+    {
+        $this->setUp();
+
+        $this->systemLog->register('additional_parameters');
+    }
+
+    /**
+     * @covers Phramework\SystemLog\SystemLog::prepareObject
+     */
+    public function testPrepareObject()
+    {
+        $this->setUp();
+
+        $method = Phramework::METHOD_GET;
+
+        //Force URI route
+        $_SERVER['REQUEST_URI'] = '/dummy/1';
+        $_SERVER['REQUEST_METHOD'] = $method;
+
+        $additionalParameters = (object)[
+            'API' => 'phpunit'
+        ];
+
+        $this->systemLog->register($additionalParameters);
+
+        //$that = $this
+
+        $object = Bootstrap::invokeMethod(
+            $this->systemLog,
+            'prepareObject',
+            [
+                  SystemLog::LOG_USER_ID
+                | SystemLog::LOG_REQUEST_HEADERS
+                | SystemLog::LOG_REQUEST_HEADER_ACCEPT
+                | SystemLog::LOG_REQUEST_PARAMS
+                | SystemLog::LOG_RESPONSE_BODY,
+                (object)[
+                    'body_raw_limit' => 10
+                ],
+                (object)[
+
+                ],
+                $method,
+                [],
+                $additionalParameters
+            ]
+        );
+
+        $this->assertInternalType('object', $object);
+
+        $this->assertObjectHasAttribute(
+            'request_id',
+            $object
+        );
+
+        $this->assertObjectHasAttribute(
+            'URI',
+            $object
+        );
+
+        $this->assertObjectHasAttribute(
+            'method',
+            $object
+        );
+
+        $this->assertSame($method, $object->method);
+
     }
 }

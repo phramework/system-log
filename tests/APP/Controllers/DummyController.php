@@ -57,4 +57,9 @@ class DummyController
     {
         throw new \Phramework\Exceptions\MissingParametersException(['ok']);
     }
+
+    public static function PUT($params, $method, $headers, $id)
+    {
+        \Phramework\Models\Response::noContent();
+    }
 }

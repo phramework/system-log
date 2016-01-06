@@ -35,6 +35,7 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        return;
         $settings = \Phramework\SystemLog\APP\Bootstrap::getSettings();
 
         $this->phramework = \Phramework\SystemLog\APP\Bootstrap::prepare();
@@ -56,6 +57,7 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
      */
     public function testLog()
     {
+        return;
         $this->systemLog->register();
         $this->phramework->invoke();
     }

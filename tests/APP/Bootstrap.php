@@ -48,6 +48,9 @@ class Bootstrap
                             ,
                     'Phramework\\SystemLog\\APP\\Controllers\\DummyController::POST' =>
                               SystemLog::LOG_REQUEST_BODY_RAW
+                            ,
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController::PUT' =>
+                              SystemLog::LOG_IGNORE
                 ],
                 'matrix-exception' => [
                     'Exception' =>
@@ -94,32 +97,43 @@ class Bootstrap
      *
      * @return Phramework
      */
-    public static function prepare()
+    public static function prepare($webserver = false)
     {
+        if (!$webserver) {
+            $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+            $_SERVER['REQUEST_TIME'] = time() -1;
+        }
+
         $phramework = new Phramework(
             self::getSettings(),
             new \Phramework\URIStrategy\URITemplate([
                 [
                     '/',
-                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'GET',
                     Phramework::METHOD_GET,
                 ],
                 [
                     '/dummy/',
-                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'GET',
                     Phramework::METHOD_GET,
                 ],
                 [
                     '/dummy/',
-                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'POST',
                     Phramework::METHOD_POST,
                 ],
                 [
                     '/dummy/{id}',
-                    '\\Phramework\\SystemLog\\APP\\Controllers\\DummyController',
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController',
+                    'PUT',
+                    Phramework::METHOD_PUT,
+                ],
+                [
+                    '/dummy/{id}',
+                    'Phramework\\SystemLog\\APP\\Controllers\\DummyController',
                     'GETById',
                     Phramework::METHOD_GET,
                 ],
@@ -127,5 +141,24 @@ class Bootstrap
         );
 
         return $phramework;
+    }
+
+    /**
+     * Call protected/private method of a class.
+     *
+     * @param object &$object    Instantiated object that we will run method on.
+     * @param string $methodName Method name to call
+     * @param array  $parameters Array of parameters to pass into method.
+     *
+     * @return mixed Method return.
+     * @link https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
+     */
+    public static function invokeMethod(&$object, $methodName, array $parameters = array())
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
     }
 }

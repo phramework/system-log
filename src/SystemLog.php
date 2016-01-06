@@ -293,8 +293,8 @@ class SystemLog
                 );
 
                 //If ignore flag is active, dont store anything
-                if (($flags & self::LOG_IGNORE) !== 0) {
-                    return;
+                if ($flags === self::LOG_IGNORE) {
+                    return false;
                 }
 
                 //For common properties
@@ -340,8 +340,8 @@ class SystemLog
                 );
 
                 //If ignore flag is active, dont store anything
-                if (($flags & self::LOG_IGNORE) !== 0) {
-                    return;
+                if ($flags === self::LOG_IGNORE) {
+                    return false;
                 }
 
                 //For common properties
@@ -550,11 +550,6 @@ class SystemLog
                     )
                 ];
             }
-        }
-
-        //If response headers are set, convert them to object
-        if (!empty($object->response_headers)) {
-
         }
 
         return $object;
