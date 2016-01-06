@@ -486,10 +486,8 @@ class SystemLog
             $object->request_params = $params;
         }
 
-        if (true || ($flags & self::LOG_REQUEST_BODY_RAW) !== 0) {
-
-
-            $bodyRaw = file_get_contents('php://input'); //file_get_contents('php://input');
+        if (($flags & self::LOG_REQUEST_BODY_RAW) !== 0) {
+            $bodyRaw = file_get_contents('php://input');
 
             if (strlen($bodyRaw) > $settings->body_raw_limit) {
                 $bodyRaw = 'TRIMMED' . PHP_EOL . substr($bodyRaw, 0, $settings->body_raw_limit);
