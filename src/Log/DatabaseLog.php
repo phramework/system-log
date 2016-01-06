@@ -173,7 +173,11 @@ class DatabaseLog implements ILog
             : json_encode($data->call_trace)
         );
 
-        //$data->response_status_code = (empty($data->response_status_code)) ? null : $data->response_status_code;
+        $data->response_status_code =  (
+            empty($data->response_status_code)
+            ? null
+            : $data->response_status_code
+        );
 
         //Insert log object to database
 
@@ -217,7 +221,9 @@ class DatabaseLog implements ILog
     public function __destruct()
     {
         try {
-            $this->adapter->close();
+            if ($this->logAdapter) {
+                $this->logAdapter->close();
+            }
         } catch (\Exception $e) {
         }
     }
