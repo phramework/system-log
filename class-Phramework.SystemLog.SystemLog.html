@@ -112,9 +112,11 @@
 Defined settings: <br/></p>
 
 <ul>
-<li> object system-log <ul> <li>string  log Log implentation class (full class path)</li> <li>integer body_raw_limit <i>[Optional]</i> In bytes, default is 1000000</li> <li>array   matrix <i>[Optional]</i></li> <li>array   matrix-exception <i>[Optional]</i></li> </ul>
+<li> object system-log <ul> <li>string  log Log implentation class (full class path)</li> <li>integer body_raw_limit <i>[Optional]</i> In bytes, default is 1000000</li> <li> array   matrix <i>[Optional]</i> Set log level for each Controller::method.<br/> Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields. </li> <li> array   matrix-exception <i>[Optional]</i> Set log level for each exception class.<br/> Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields. </li> </ul>
 </li>
 </ul>
+
+<p>See <a href="#___construct">__construct</a> method for an example</p>
 	</div>
 
 
@@ -138,9 +140,9 @@ Defined settings: <br/></p>
 				<b>Since:</b>
 				0.0.0<br>
 				<b>Link:</b>
-				Source code https://github.com/phramework/system-log<br>
+				<a href="https://github.com/phramework/system-log">Source code</a><br>
 				<b>Link:</b>
-				Documentation https://phramework.github.io/system-log/<br>
+				<a href="https://phramework.github.io/system-log">Documentation</a><br>
 			<b>Located at</b> SystemLog.php		<br>
 	</div>
 
@@ -186,7 +188,8 @@ useful when different log levels for separate system reports are needed.</p>
 
 					<h4>Example</h4>
 					<div class="list">
-							<pre><span class="php-comment">//Inside your index.php file</span>
+							<pre><span class="php-comment">//Your index.php file</span>
+
 <span class="php-keyword1">include</span> __DIR__ . <span class="php-quote">'/../../vendor/autoload.php'</span>;
 
 <span class="php-keyword1">use</span> \Phramework\Phramework;
@@ -195,29 +198,38 @@ useful when different log levels for separate system reports are needed.</p>
 <span class="php-comment">//Global phramework settings</span>
 <span class="php-var">$settings</span> = [
     <span class="php-quote">'system-log'</span> =&gt; (object)[
-      <span class="php-quote">'log'</span> =&gt; <span class="php-quote">'Phramework\\SystemLog\\APP\\Log\\TerminalLog'</span>,
-      <span class="php-quote">'body_raw_limit'</span> =&gt; <span class="php-num">1000</span>,
-      <span class="php-quote">'matrix'</span> =&gt; [
-          <span class="php-quote">'Phramework\\SystemLog\\APP\\Controllers\\DummyController::GET'</span> =&gt;
-                SystemLog::LOG_REQUEST_HEADER_AGENT
-              | SystemLog::LOG_REQUEST_PARAMS
-      ]
-      <span class="php-quote">'matrix-exception'</span> =&gt; [
-          <span class="php-quote">'Exception'</span> =&gt;
-                SystemLog::LOG_STANDARD,
-          <span class="php-quote">'Phramework\\Exceptions\\ServerException'</span> =&gt;
-                SystemLog::LOG_REQUEST_HEADER_AGENT
-              | SystemLog::LOG_REQUEST_PARAMS
-      ]
-  ]
+        <span class="php-quote">'log'</span> =&gt; <span class="php-quote">'Phramework\\SystemLog\\Log\\TerminalLog'</span>,
+        <span class="php-quote">'body_raw_limit'</span> =&gt; <span class="php-num">1000</span>,
+        <span class="php-quote">'matrix'</span> =&gt; [
+            <span class="php-quote">'MyNamespace\\Controllers\\DummyController::GET'</span> =&gt;
+                  SystemLog::LOG_REQUEST_HEADER_AGENT
+                | SystemLog::LOG_REQUEST_PARAMS
+            ,
+            <span class="php-quote">'MyNamespace\\Controllers\\DummyController::POST'</span> =&gt;
+                  SystemLog::LOG_REQUEST_HEADERS
+                | SystemLog::LOG_REQUEST_PARAMS
+                | SystemLog::LOG_REQUEST_BODY_RAW
+        ]
+        <span class="php-quote">'matrix-exception'</span> =&gt; [
+            <span class="php-quote">'Exception'</span> =&gt;
+                  SystemLog::LOG_STANDARD,
+            <span class="php-quote">'Phramework\\Exceptions\\ServerException'</span> =&gt;
+                  SystemLog::LOG_REQUEST_HEADER_AGENT
+                | SystemLog::LOG_REQUEST_PARAMS
+        ]
+    ]
 ];
+
+<span class="php-comment">//Prepare your $URIStrategy here</span>
+
 <span class="php-comment">//Initialize phramework</span>
 <span class="php-var">$phramework</span> = <span class="php-keyword1">new</span> Phramework(
-    self::getSettings(),
+    <span class="php-var">$settings</span>,
     <span class="php-var">$URIStrategy</span>
 );
 
 <span class="php-comment">//Initialize a system log instance and register it</span>
+<span class="php-comment">//before calling phramework's invoke method</span>
 <span class="php-var">$systemLog</span> = <span class="php-keyword1">new</span> SystemLog(<span class="php-var">$settings</span>[<span class="php-quote">'system-log'</span>]);
 <span class="php-var">$systemLog</span>-&gt;register((object)[
     <span class="php-quote">'server'</span> =&gt; <span class="php-quote">'my server'</span>
@@ -290,11 +302,37 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_STANDARD</b>					</code>
 
 					<div class="description short">
-						<p>Default flag for requests</p>
+						<p>Default flag for requests
+By default will store:</p>
+
+<ul>
+<li>request_id</li>
+<li>URI</li>
+<li>method</li>
+<li>ip_address</li>
+<li>request_timestamp</li>
+<li>response_timestamp</li>
+<li>response_status_code</li>
+<li>flags</li>
+<li>additional_parameters</li>
+</ul>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Default flag for requests</p>
+						<p>Default flag for requests
+By default will store:</p>
+
+<ul>
+<li>request_id</li>
+<li>URI</li>
+<li>method</li>
+<li>ip_address</li>
+<li>request_timestamp</li>
+<li>response_timestamp</li>
+<li>response_status_code</li>
+<li>flags</li>
+<li>additional_parameters</li>
+</ul>
 
 					</div>
 				</td>
@@ -313,11 +351,27 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_EXCEPTION_STANDARD</b>					</code>
 
 					<div class="description short">
-						<p>Default flag for exceptions</p>
+						<p>Default flag for exceptions
+In addition to fields described in <strong><code>LOG_STANDARD</code></strong>, exceptions will store:</p>
+
+<ul>
+<li>exception</li>
+<li>exception_class</li>
+<li>errors</li>
+<li>call_trace</li>
+</ul>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Default flag for exceptions</p>
+						<p>Default flag for exceptions
+In addition to fields described in <strong><code>LOG_STANDARD</code></strong>, exceptions will store:</p>
+
+<ul>
+<li>exception</li>
+<li>exception_class</li>
+<li>errors</li>
+<li>call_trace</li>
+</ul>
 
 					</div>
 				</td>
@@ -359,11 +413,13 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_USER_ID</b>					</code>
 
 					<div class="description short">
-						<p>Will log user's id if request is authenticated</p>
+						<p>Will log user's id if request is authenticated, if not false will be written.
+Stored as string <code>user_id</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Will log user's id if request is authenticated</p>
+						<p>Will log user's id if request is authenticated, if not false will be written.
+Stored as string <code>user_id</code></p>
 
 					</div>
 				</td>
@@ -382,11 +438,13 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_REQUEST_HEADER_AGENT</b>					</code>
 
 					<div class="description short">
-						<p><code>User-Agent</code> header</p>
+						<p>Enables log of <code>User-Agent</code> header.
+Stored as array item in <code>request_headers</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p><code>User-Agent</code> header</p>
+						<p>Enables log of <code>User-Agent</code> header.
+Stored as array item in <code>request_headers</code></p>
 
 					</div>
 				</td>
@@ -405,11 +463,13 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_REQUEST_HEADER_REFERER</b>					</code>
 
 					<div class="description short">
-						<p><code>Referer</code> header</p>
+						<p>Enables log of <code>Referer</code> header.
+Stored as array item in <code>request_headers</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p><code>Referer</code> header</p>
+						<p>Enables log of <code>Referer</code> header.
+Stored as array item in <code>request_headers</code></p>
 
 					</div>
 				</td>
@@ -428,11 +488,13 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_REQUEST_HEADER_ACCEPT</b>					</code>
 
 					<div class="description short">
-						<p><code>Accept</code> header</p>
+						<p>Enables log of <code>Accept</code> header.
+Stored as array item in <code>request_headers</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p><code>Accept</code> header</p>
+						<p>Enables log of <code>Accept</code> header.
+Stored as array item in <code>request_headers</code></p>
 
 					</div>
 				</td>
@@ -451,11 +513,13 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_REQUEST_HEADER_CONTENT_TYPE</b>					</code>
 
 					<div class="description short">
-						<p><code>Content-Type</code> header</p>
+						<p>Enables log of <code>Content-Type</code> header.
+Stored as array item in <code>request_headers</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p><code>Content-Type</code> header</p>
+						<p>Enables log of <code>Content-Type</code> header.
+Stored as array item in <code>request_headers</code></p>
 
 					</div>
 				</td>
@@ -474,11 +538,13 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_REQUEST_HEADERS</b>					</code>
 
 					<div class="description short">
-						<p>Will log all request headers</p>
+						<p>Enables log of all request headers.
+Stored as array item in <code>request_headers</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Will log all request headers</p>
+						<p>Enables log of all request headers.
+Stored as array item in <code>request_headers</code></p>
 
 					</div>
 				</td>
@@ -497,11 +563,13 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_REQUEST_PARAMS</b>					</code>
 
 					<div class="description short">
-						<p>Will log parsed request parameters</p>
+						<p>Enables log of parsed request parameters.
+Stored as object <code>request_params</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Will log parsed request parameters</p>
+						<p>Enables log of parsed request parameters.
+Stored as object <code>request_params</code></p>
 
 					</div>
 				</td>
@@ -520,22 +588,24 @@ useful when different log levels for separate system reports are needed.</p>
 <b>LOG_REQUEST_BODY_RAW</b>					</code>
 
 					<div class="description short">
-						<p>Will log raw request body<br/>
+						<p>Enables log of raw request body if any.<br/>
+Stored as string <code>request_body_raw</code> <br/>
 See <code>body_raw_limit</code> setting, if length of request exceeds tis number
 then first <code>body_raw_limit</code> characters, prefixed by <code>TRIMMED\n</code> string
 will be used.</p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Will log raw request body<br/>
+						<p>Enables log of raw request body if any.<br/>
+Stored as string <code>request_body_raw</code> <br/>
 See <code>body_raw_limit</code> setting, if length of request exceeds tis number
 then first <code>body_raw_limit</code> characters, prefixed by <code>TRIMMED\n</code> string
 will be used.</p>
 
-							<h4>See</h4>
+							<h4>Uses</h4>
 							<div class="list">
-									<p>filter_var with FILTER_SANITIZE_STRING is applied to raw body
-https://secure.php.net/manual/en/function.filter-var.php</p><br>
+									<p>https://secure.php.net/manual/en/function.filter-var.php filter_var
+with FILTER_SANITIZE_STRING is applied to raw body</p><br>
 							</div>
 					</div>
 				</td>
@@ -554,11 +624,13 @@ https://secure.php.net/manual/en/function.filter-var.php</p><br>
 <b>LOG_RESPONSE_HEADER</b>					</code>
 
 					<div class="description short">
-						<p>Will log response headers</p>
+						<p>Enables log of response headers.
+Stored as array <code>response_headers</code></p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Will log response headers</p>
+						<p>Enables log of response headers.
+Stored as array <code>response_headers</code></p>
 
 					</div>
 				</td>
@@ -577,14 +649,16 @@ https://secure.php.net/manual/en/function.filter-var.php</p><br>
 <b>LOG_RESPONSE_BODY</b>					</code>
 
 					<div class="description short">
-						<p>Will log response body.
-<em>NOTE</em> if LOG_RESPONSE_HEADER is turned off, still the <code>Content-Type</code>
+						<p>Enables log of response body.
+Stored as string <code>response_body</code> <br/>
+<em>NOTE</em> if <strong><code>LOG_RESPONSE_HEADER</code></strong> is turned off, still the <code>Content-Type</code>
 response header will be written to response_headers.</p>
 					</div>
 
 					<div class="description detailed hidden">
-						<p>Will log response body.
-<em>NOTE</em> if LOG_RESPONSE_HEADER is turned off, still the <code>Content-Type</code>
+						<p>Enables log of response body.
+Stored as string <code>response_body</code> <br/>
+<em>NOTE</em> if <strong><code>LOG_RESPONSE_HEADER</code></strong> is turned off, still the <code>Content-Type</code>
 response header will be written to response_headers.</p>
 
 					</div>

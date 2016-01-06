@@ -129,11 +129,19 @@ Defined settings: <br/></p>
   <ul>
     <li>string  log Log implentation class (full class path)</li>
     <li>integer body_raw_limit <i>[Optional]</i> In bytes, default is 1000000</li>
-    <li>array   matrix <i>[Optional]</i></li>
-    <li>array   matrix-exception <i>[Optional]</i></li>
+    <li>
+      array   matrix <i>[Optional]</i> Set log level for each Controller::method.<br/>
+      Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields.
+    </li>
+    <li>
+      array   matrix-exception <i>[Optional]</i> Set log level for each exception class.<br/>
+      Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields.
+    </li>
   </ul>
 </li>
-</ul></td>
+</ul>
+
+<p>See <a href="#___construct">__construct</a> method for an example</p></td>
 </tr>
 	</table>
 </div>
