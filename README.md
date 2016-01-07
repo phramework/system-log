@@ -2,7 +2,6 @@
 system-log environment for phramework
 
 ## Usage
-(**NOTE** this will work when the repo will become public!)
 
 ```bash
 composer require phramework/system-log
