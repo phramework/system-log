@@ -153,7 +153,7 @@ class Bootstrap
      * @return mixed Method return.
      * @link https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
      */
-    public static function invokeMethod(&$object, $methodName, array $parameters = array())
+    public static function invokeMethod(&$object, $methodName, array $parameters = [])
     {
         $reflection = new \ReflectionClass(get_class($object));
         $method = $reflection->getMethod($methodName);

@@ -128,8 +128,6 @@ class DatabaseLog implements ILog
         if (isset($settingsDb->table)) {
             $this->table = $settingsDb->table;
         }
-
-        \Phramework\Database\Database::setAdapter($this->logAdapter);
     }
 
     /**

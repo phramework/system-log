@@ -62,6 +62,7 @@ class DatabaseLogTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = Phramework::METHOD_GET;
 
         $this->systemLog->register();
+        
         $this->phramework->invoke();
     }
 }
