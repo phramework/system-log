@@ -27,17 +27,18 @@ use \Phramework\Extensions\StepCallback;
  * SystemLog package, used to log requests and exceptions
  * Defined settings: <br/>
  * <ul>
+ * <li>boolean disabled, <i>[Optional]</i>, disable log instance, default is false</li>
  * <li>
  *   object system-log
  *   <ul>
  *     <li>string  log Log implentation class (full class path)</li>
  *     <li>integer body_raw_limit <i>[Optional]</i> In bytes, default is 1000000</li>
  *     <li>
- *       array   matrix <i>[Optional]</i> Set log level for each Controller::method.<br/>
+ *       array matrix <i>[Optional]</i> Set log level for each Controller::method.<br/>
  *       Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields.
  *     </li>
  *     <li>
- *       array   matrix-exception <i>[Optional]</i> Set log level for each exception class.<br/>
+ *       array matrix-exception <i>[Optional]</i> Set log level for each exception class.<br/>
  *       Constants defined in this class with prefix <strong>LOG_</strong> are used as flags to enable certain fields.
  *     </li>
  *   </ul>
@@ -67,7 +68,9 @@ class SystemLog
      * <li>additional_parameters</li>
      * </ul>
      */
-    const LOG_STANDARD                = 0;
+    const LOG_STANDARD                =
+          self::LOG_USER_ID
+        | self::LOG_REQUEST_HEADER_AGENT;
     /**
      * Default flag for exceptions
      * In addition to fields described in **`LOG_STANDARD`**, exceptions will store:
@@ -249,6 +252,7 @@ class SystemLog
      * Register system log instance to phramework
      * @param null|object $additionalParameters
      * @throws Exception
+     * @return boolean
      */
     public function register($additionalParameters = null)
     {
@@ -258,8 +262,22 @@ class SystemLog
 
         $settings = $this->settings;
 
-        $logMatrix          = (array)$settings->matrix;
-        $logMatrixException = (array)$settings->{'matrix-exception'};
+        //Ignore registration if disabled setting is set to true
+        if (isset($this->settings->disabled) && $this->settings->disabled) {
+            return false;
+        }
+
+        $logMatrix = (
+            isset($settings->matrix)
+            ? (array)$settings->matrix
+            : []
+        );
+
+        $logMatrixException = (
+            isset($settings->{'matrix-exception'})
+            ? (array)$settings->{'matrix-exception'}
+            : []
+        );
 
         $logObject = $this->logObject;
 
@@ -356,7 +374,9 @@ class SystemLog
 
                 //Write specific
                 $object->errors = $errors;
-                $object->exception = serialize($exception);
+                $object->exception = serialize(self::flattenExceptionBacktrace(
+                    $exception
+                ));
                 $object->exception_class = $matrixKey;
 
                 $debugBacktrace = (array)(object)$exception;
@@ -379,6 +399,8 @@ class SystemLog
                 return $logObject->log($step, $object);
             }
         );
+
+        return true;
     }
 
     /**
@@ -551,5 +573,40 @@ class SystemLog
         }
 
         return $object;
+    }
+
+    /**
+     * @link https://gist.github.com/Thinkscape/805ba8b91cdce6bcaf7c
+     * @param  Exception $exception
+     * @return Exception
+     */
+    public static function flattenExceptionBacktrace(\Exception $exception)
+    {
+        $traceProperty = (new \ReflectionClass('Exception'))->getProperty('trace');
+        $traceProperty->setAccessible(true);
+        $flatten = function (&$value, $key) {
+            if ($value instanceof \Closure) {
+                $closureReflection = new \ReflectionFunction($value);
+                $value = sprintf(
+                    '(Closure at %s:%s)',
+                    $closureReflection->getFileName(),
+                    $closureReflection->getStartLine()
+                );
+            } elseif (is_object($value)) {
+                $value = sprintf('object(%s)', get_class($value));
+            } elseif (is_resource($value)) {
+                $value = sprintf('resource(%s)', get_resource_type($value));
+            }
+        };
+
+        do {
+            $trace = $traceProperty->getValue($exception);
+            foreach ($trace as &$call) {
+                array_walk_recursive($call['args'], $flatten);
+            }
+            $traceProperty->setValue($exception, $trace);
+        } while ($exception = $exception->getPrevious());
+
+        $traceProperty->setAccessible(false);
     }
 }
