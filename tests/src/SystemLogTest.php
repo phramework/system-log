@@ -88,7 +88,6 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-
     }
 
     /**
@@ -388,6 +387,5 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertSame($method, $object->method);
-
     }
 }
